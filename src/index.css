@@ -132,7 +132,7 @@
   }
   
   .card-service {
-    @apply bg-card rounded-xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-500 border border-border group;
+    @apply bg-card rounded-xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-500 border border-border;
   }
   
   /* Professional Gradients */
