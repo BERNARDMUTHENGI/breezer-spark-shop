@@ -2,57 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Breezer Electric Design System - Professional Electrical Company Branding */
 
 @layer base {
   :root {
+    /* Core Brand Colors */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
+    --foreground: 213 100% 20%;
+    
+    /* Brand Identity - Deep Blue Primary */
+    --primary: 213 100% 34%; /* #004AAD Deep Blue */
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 213 100% 30%;
+    
+    /* Brand Identity - Vibrant Yellow Secondary */
+    --secondary: 46 95% 51%; /* #F5C107 Vibrant Yellow */
+    --secondary-foreground: 213 100% 20%;
+    --secondary-hover: 46 95% 45%;
+    
+    /* Professional UI Colors */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 213 100% 20%;
+    
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --popover-foreground: 213 100% 20%;
+    
+    --muted: 213 20% 96%;
+    --muted-foreground: 213 15% 45%;
+    
+    --accent: 213 30% 94%;
+    --accent-foreground: 213 100% 34%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 213 20% 90%;
+    --input: 213 20% 90%;
+    --ring: 213 100% 34%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Professional Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-hover)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-hover)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-hover)) 100%);
+    
+    /* Professional Shadows */
+    --shadow-card: 0 4px 20px -4px hsl(var(--primary) / 0.1);
+    --shadow-button: 0 4px 14px -4px hsl(var(--secondary) / 0.4);
+    --shadow-hero: 0 25px 50px -12px hsl(var(--primary) / 0.25);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
+    /* Sidebar Colors */
+    --sidebar-background: 213 100% 34%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 46 95% 51%;
+    --sidebar-primary-foreground: 213 100% 20%;
+    --sidebar-accent: 213 100% 30%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 213 100% 40%;
+    --sidebar-ring: 46 95% 51%;
   }
 
   .dark {
@@ -101,5 +113,50 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* Professional Button Variants */
+  .btn-hero {
+    @apply bg-gradient-to-r from-secondary to-secondary-hover text-secondary-foreground font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300;
+  }
+  
+  .btn-primary-outline {
+    @apply border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground font-semibold px-6 py-3 rounded-lg transition-all duration-300;
+  }
+  
+  /* Card Components */
+  .card-professional {
+    @apply bg-card rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-border;
+  }
+  
+  .card-service {
+    @apply bg-card rounded-xl p-8 shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-500 border border-border group;
+  }
+  
+  /* Professional Gradients */
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  /* Text Animations */
+  .fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
