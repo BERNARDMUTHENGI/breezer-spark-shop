@@ -6,6 +6,9 @@ import { componentTagger } from "lovable-tagger";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
+     allowedHosts: [
+      'breezer-spark-shop.onrender.com' // ✅ Add your Render domain here
+    ],
     host: "::",
     port: 8080,
   },

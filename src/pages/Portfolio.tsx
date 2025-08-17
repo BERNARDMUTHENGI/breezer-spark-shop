@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,14 +10,16 @@ import {
   ArrowRight,
   Calendar,
   MapPin,
-  Award
+  Award,
+  Loader2
 } from "lucide-react";
 
 interface Project {
   id: number;
   title: string;
   category: string;
-  type: "residential" | "commercial" | "industrial";
+  type: string;
+  type_name: string;
   location: string;
   year: string;
   description: string;
@@ -25,84 +27,60 @@ interface Project {
   image: string;
 }
 
+interface ProjectType {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string;
+}
+
 const Portfolio = () => {
   const [selectedType, setSelectedType] = useState<string>("all");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectTypes, setProjectTypes] = useState<ProjectType[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const projects: Project[] = [
-    {
-      id: 1,
-      title: "Residential Villa Electrical Installation",
-      category: "Complete Electrical System",
-      type: "residential",
-      location: "Karen, Nairobi",
-      year: "2024",
-      description: "Complete electrical installation for a 4-bedroom villa including smart home automation, backup generator system, and solar panel integration.",
-      services: ["Electrical Wiring", "Generator Installation", "Solar Integration", "Smart Home"],
-      image: "/api/placeholder/600/400"
-    },
-    {
-      id: 2,
-      title: "Office Complex CCTV & Access Control",
-      category: "Security Systems",
-      type: "commercial",
-      location: "Westlands, Nairobi",
-      year: "2024",
-      description: "Comprehensive security system installation for 8-floor office complex with 64 IP cameras, access control, and alarm systems.",
-      services: ["CCTV Installation", "Access Control", "Alarm Systems", "Network Infrastructure"],
-      image: "/api/placeholder/600/400"
-    },
-    {
-      id: 3,
-      title: "Manufacturing Plant Power Distribution",
-      category: "Industrial Electrical",
-      type: "industrial",
-      location: "Thika, Kiambu",
-      year: "2023",
-      description: "Industrial electrical installation for manufacturing facility including high-voltage distribution, machinery connections, and emergency backup systems.",
-      services: ["Power Distribution", "Industrial Wiring", "Generator Systems", "Electrical Design"],
-      image: "/api/placeholder/600/400"
-    },
-    {
-      id: 4,
-      title: "Shopping Mall Solar Installation",
-      category: "Solar Energy System",
-      type: "commercial",
-      location: "Nakuru",
-      year: "2024",
-      description: "500kW rooftop solar installation for shopping mall with grid-tie system and battery backup for critical loads.",
-      services: ["Solar Installation", "Grid-Tie System", "Battery Backup", "Energy Management"],
-      image: "/api/placeholder/600/400"
-    },
-    {
-      id: 5,
-      title: "Apartment Block Electrical Upgrade",
-      category: "Electrical Renovation",
-      type: "residential",
-      location: "Kileleshwa, Nairobi",
-      year: "2023",
-      description: "Complete electrical system upgrade for 24-unit apartment block including new distribution boards, rewiring, and safety systems.",
-      services: ["Electrical Upgrade", "Safety Systems", "Distribution Boards", "Code Compliance"],
-      image: "/api/placeholder/600/400"
-    },
-    {
-      id: 6,
-      title: "Hospital Emergency Power Systems",
-      category: "Critical Power Systems",
-      type: "commercial",
-      location: "Mombasa",
-      year: "2023",
-      description: "Critical power systems installation for hospital including UPS systems, backup generators, and automatic transfer switches.",
-      services: ["UPS Systems", "Generator Installation", "Transfer Switches", "Critical Power"],
-      image: "/api/placeholder/600/400"
-    }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch project types
+        const typesResponse = await fetch('http://localhost:5000/api/portfolio/types');
+        if (!typesResponse.ok) throw new Error('Failed to fetch project types');
+        const typesData = await typesResponse.json();
+        
+        // Transform types to match frontend structure
+        const transformedTypes = typesData.map((type: any) => ({
+          id: type.slug,
+          name: type.name,
+          slug: type.slug,
+          icon: type.icon
+        }));
+        
+        setProjectTypes([
+          { id: "all", name: "All Projects", slug: "all", icon: "Award" },
+          ...transformedTypes.filter((type: any) => type.slug !== "all")
+        ]);
 
-  const projectTypes = [
-    { id: "all", name: "All Projects", icon: Award },
-    { id: "residential", name: "Residential", icon: Home },
-    { id: "commercial", name: "Commercial", icon: Building },
-    { id: "industrial", name: "Industrial", icon: Factory }
-  ];
+        // Fetch projects
+        const projectsResponse = await fetch(`http://localhost:5000/api/portfolio/projects?type=${selectedType}`);
+        if (!projectsResponse.ok) throw new Error('Failed to fetch projects');
+        const projectsData = await projectsResponse.json();
+        
+        setProjects(projectsData);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to load portfolio data. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [selectedType]);
 
   const filteredProjects = selectedType === "all" 
     ? projects 
@@ -114,6 +92,16 @@ const Portfolio = () => {
     { number: "5+", label: "Years Experience" },
     { number: "24/7", label: "Support Available" }
   ];
+
+  const getIconComponent = (iconName: string) => {
+    switch (iconName) {
+      case 'Home': return Home;
+      case 'Building': return Building;
+      case 'Factory': return Factory;
+      case 'Award': return Award;
+      default: return Building;
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -145,17 +133,20 @@ const Portfolio = () => {
       <section className="py-8 bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap gap-4 justify-center">
-            {projectTypes.map((type) => (
-              <Button
-                key={type.id}
-                variant={selectedType === type.id ? "default" : "outline"}
-                onClick={() => setSelectedType(type.id)}
-                className="flex items-center space-x-2"
-              >
-                <type.icon className="h-4 w-4" />
-                <span>{type.name}</span>
-              </Button>
-            ))}
+            {projectTypes.map((type) => {
+              const IconComponent = getIconComponent(type.icon);
+              return (
+                <Button
+                  key={type.id}
+                  variant={selectedType === type.id ? "default" : "outline"}
+                  onClick={() => setSelectedType(type.id)}
+                  className="flex items-center space-x-2"
+                >
+                  <IconComponent className="h-4 w-4" />
+                  <span>{type.name}</span>
+                </Button>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -163,59 +154,91 @@ const Portfolio = () => {
       {/* Projects Grid */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProjects.map((project) => (
-              <Card key={project.id} className="card-service overflow-hidden">
-                <div className="aspect-video bg-muted/50 relative overflow-hidden">
-                  {/* Placeholder for project image */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                    <div className="text-center text-primary">
-                      <Building className="h-16 w-16 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm opacity-75">Project Image</p>
-                    </div>
-                  </div>
-                  <Badge className="absolute top-4 left-4 bg-primary">
-                    {project.type.charAt(0).toUpperCase() + project.type.slice(1)}
-                  </Badge>
-                </div>
-                <CardContent className="p-6 space-y-4">
-                  <div>
-                    <h3 className="text-xl font-semibold text-primary mb-2">{project.title}</h3>
-                    <p className="text-secondary font-medium">{project.category}</p>
-                  </div>
-                  
-                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                    <div className="flex items-center space-x-1">
-                      <MapPin className="h-3 w-3" />
-                      <span>{project.location}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="h-3 w-3" />
-                      <span>{project.year}</span>
-                    </div>
-                  </div>
-                  
-                  <p className="text-muted-foreground text-sm">{project.description}</p>
-                  
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-sm text-primary">Services Provided:</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {project.services.map((service, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-xs">
-                          {service}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          
-          {filteredProjects.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No projects found for the selected category.</p>
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <p className="text-destructive">{error}</p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => window.location.reload()}
+              >
+                Retry
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredProjects.map((project) => {
+                  const projectType = projectTypes.find(t => t.slug === project.type) || 
+                    { name: project.type_name, icon: 'Building' };
+                  const IconComponent = getIconComponent(projectType.icon);
+                  
+                  return (
+                    <Card key={project.id} className="card-service overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="aspect-video bg-muted/50 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                          {project.image ? (
+                            <img 
+                              src={project.image} 
+                              alt={project.title} 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <>
+                              <IconComponent className="h-16 w-16 mx-auto mb-2 opacity-50" />
+                              <p className="text-sm opacity-75">Project Image</p>
+                            </>
+                          )}
+                        </div>
+                        <Badge className="absolute top-4 left-4 bg-primary">
+                          {projectType.name}
+                        </Badge>
+                      </div>
+                      <CardContent className="p-6 space-y-4">
+                        <div>
+                          <h3 className="text-xl font-semibold text-primary mb-2">{project.title}</h3>
+                          <p className="text-secondary font-medium">{project.category}</p>
+                        </div>
+                        
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                          <div className="flex items-center space-x-1">
+                            <MapPin className="h-3 w-3" />
+                            <span>{project.location}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Calendar className="h-3 w-3" />
+                            <span>{project.year}</span>
+                          </div>
+                        </div>
+                        
+                        <p className="text-muted-foreground text-sm">{project.description}</p>
+                        
+                        <div className="space-y-2">
+                          <h4 className="font-semibold text-sm text-primary">Services Provided:</h4>
+                          <div className="flex flex-wrap gap-1">
+                            {project.services.map((service, idx) => (
+                              <Badge key={idx} variant="secondary" className="text-xs">
+                                {service}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+              
+              {filteredProjects.length === 0 && !loading && (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No projects found for the selected category.</p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>

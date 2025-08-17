@@ -12,16 +12,82 @@ import {
   Send,
   MessageSquare
 } from "lucide-react";
+import { useState } from "react";
 
 const Contact = () => {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    serviceType: '',
+    budgetRange: '',
+    message: ''
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for your inquiry. We'll get back to you within 24 hours.",
-    });
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/contacts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          serviceType: formData.serviceType,
+          budgetRange: formData.budgetRange,
+          message: formData.message
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit form');
+      }
+
+      const data = await response.json();
+      
+      toast({
+        title: "Message Sent!",
+        description: "Thank you for your inquiry. We'll get back to you within 24 hours.",
+      });
+
+      // Reset form
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        serviceType: '',
+        budgetRange: '',
+        message: ''
+      });
+
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast({
+        title: "Error",
+        description: "There was an error submitting your form. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -113,28 +179,52 @@ const Contact = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="firstName">First Name *</Label>
-                      <Input id="firstName" required />
+                      <Input 
+                        id="firstName" 
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        required 
+                      />
                     </div>
                     <div>
                       <Label htmlFor="lastName">Last Name *</Label>
-                      <Input id="lastName" required />
+                      <Input 
+                        id="lastName" 
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        required 
+                      />
                     </div>
                   </div>
                   
                   <div>
                     <Label htmlFor="email">Email Address *</Label>
-                    <Input id="email" type="email" required />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      value={formData.email}
+                      onChange={handleChange}
+                      required 
+                    />
                   </div>
                   
                   <div>
                     <Label htmlFor="phone">Phone Number *</Label>
-                    <Input id="phone" type="tel" required />
+                    <Input 
+                      id="phone" 
+                      type="tel" 
+                      value={formData.phone}
+                      onChange={handleChange}
+                      required 
+                    />
                   </div>
                   
                   <div>
-                    <Label htmlFor="service">Service Type *</Label>
+                    <Label htmlFor="serviceType">Service Type *</Label>
                     <select 
-                      id="service" 
+                      id="serviceType" 
+                      value={formData.serviceType}
+                      onChange={handleChange}
                       required
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     >
@@ -146,9 +236,11 @@ const Contact = () => {
                   </div>
                   
                   <div>
-                    <Label htmlFor="budget">Project Budget (Optional)</Label>
+                    <Label htmlFor="budgetRange">Project Budget (Optional)</Label>
                     <select 
-                      id="budget"
+                      id="budgetRange"
+                      value={formData.budgetRange}
+                      onChange={handleChange}
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <option value="">Select budget range</option>
@@ -166,13 +258,15 @@ const Contact = () => {
                       id="message" 
                       placeholder="Please describe your project requirements, timeline, and any specific needs..."
                       className="min-h-[120px]"
+                      value={formData.message}
+                      onChange={handleChange}
                       required 
                     />
                   </div>
                   
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full" disabled={isSubmitting}>
                     <Send className="h-4 w-4 mr-2" />
-                    Send Request
+                    {isSubmitting ? 'Sending...' : 'Send Request'}
                   </Button>
                 </form>
               </CardContent>

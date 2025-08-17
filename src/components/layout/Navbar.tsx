@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Zap } from "lucide-react";
+import { Menu, X, Zap, ShoppingCart, User } from "lucide-react"; // Import ShoppingCart and User icons
 import { Button } from "@/components/ui/button";
+import { useCart } from "../../contexts/CartContext"; // Corrected to relative path
+import { useAuth } from "../../contexts/AuthContext"; // Corrected to relative path
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { cartItemCount } = useCart(); // Get cart item count from context
+  const { isAuthenticated } = useAuth(); // Get authentication status from context
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -50,13 +54,47 @@ export const Navbar = () => {
             <Button variant="outline" asChild>
               <Link to="/admin">Admin</Link>
             </Button>
+
+            {/* Cart Icon (Desktop) - Now links to /cart */}
+            <Link to="/cart" className="relative p-2 rounded-full hover:bg-gray-100 transition-colors">
+              <ShoppingCart className="h-6 w-6 text-gray-700" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItemCount}
+                </span>
+              )}
+              <span className="sr-only">Shopping Cart</span>
+            </Link>
+
+            {/* Profile Icon (Desktop) */}
+            <Link to={isAuthenticated ? "/account" : "/login"} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+              <User className="h-6 w-6 text-gray-700" />
+              <span className="sr-only">Profile</span>
+            </Link>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          {/* Mobile menu button & Icons */}
+          <div className="md:hidden flex items-center space-x-2">
+            {/* Cart Icon (Mobile) - Now links to /cart */}
+            <Link to="/cart" className="relative p-2 rounded-full hover:bg-gray-100 transition-colors">
+              <ShoppingCart className="h-6 w-6 text-gray-700" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItemCount}
+                </span>
+              )}
+              <span className="sr-only">Shopping Cart</span>
+            </Link>
+
+            {/* Profile Icon (Mobile) */}
+            <Link to={isAuthenticated ? "/account" : "/login"} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+              <User className="h-6 w-6 text-gray-700" />
+              <span className="sr-only">Profile</span>
+            </Link>
+
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-700 hover:text-primary"
+              className="text-gray-700 hover:text-primary p-2 rounded-full"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
