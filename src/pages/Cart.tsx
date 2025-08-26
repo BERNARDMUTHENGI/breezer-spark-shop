@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 const API_BASE_URL = "https://breezer-electronics-5.onrender.com";
 
 
+
 const Cart = () => {
   const { cartItems, removeFromCart, updateCartQuantity, cartTotal, cartItemCount, clearCart } = useCart();
   const { isAuthenticated, user,token } = useAuth(); // Get user object from AuthContext
