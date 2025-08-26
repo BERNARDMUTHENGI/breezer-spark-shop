@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "../contexts/AuthContext"; // Corrected to relative path
-import { useToast } from "@/hooks/use-toast"; // Import useToast hook
-import { User, Mail, Phone, ShoppingBag, LogOut } from "lucide-react"; // Icons
+import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { User, Mail, Phone, ShoppingBag, LogOut, AlertCircle, Loader2 } from "lucide-react";
 
-// Interface for Order data (similar to what you have in Admin, but simpler for user view)
 interface UserOrder {
   id: number;
   productName: string;
@@ -19,11 +18,12 @@ interface UserOrder {
 const API_BASE_URL = "https://breezer-electronics-5.onrender.com/api";
 
 const Account = () => {
-  const { user, isAuthenticated, logout } = useAuth(); // Get user, isAuthenticated, and logout function
+  const { user, isAuthenticated, logout } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [userOrders, setUserOrders] = useState<UserOrder[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState("");
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -38,68 +38,107 @@ const Account = () => {
   }, [isAuthenticated, navigate, toast]);
 
   // Fetch user-specific orders
-useEffect(() => {
-  const fetchUserOrders = async () => {
-    if (!user?.id) {
-      setOrdersLoading(false);
-      return;
-    }
-    setOrdersLoading(true);
-    try {
-     const res = await fetch(`${API_BASE_URL}/orders/me`, {
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-});
-
-
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch orders");
+  useEffect(() => {
+    const fetchUserOrders = async () => {
+      if (!user?.id) {
+        setOrdersLoading(false);
+        return;
       }
+      
+      setOrdersLoading(true);
+      setOrdersError("");
+      
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("No authentication token found");
+        }
 
-      const data = await res.json();
-    setUserOrders(
-  data.map((order: any) => ({
-    id: order.id,
-    productName: order.productName || "N/A", // match backend key
-    quantity: order.quantity,
-    totalAmount: order.totalAmount || 0,    // match backend key
-    status: order.status,
-    orderDate: order.orderDate || order.createdAt, // fallback to createdAt
-  }))
-);
+        const response = await fetch(`${API_BASE_URL}/orders/me`, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+        });
 
-    } catch (error) {
-      console.error("Error fetching user orders:", error);
-      toast({
-        title: "Error",
-        description: "Could not load your orders. Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
-      setOrdersLoading(false);
+        if (!response.ok) {
+          if (response.status === 401) {
+            // Token might be expired or invalid
+            logout();
+            navigate("/login");
+            throw new Error("Authentication failed. Please log in again.");
+          } else if (response.status === 404) {
+            // Try alternative endpoint structure
+            const altResponse = await fetch(`${API_BASE_URL}/users/${user.id}/orders`, {
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+              },
+            });
+            
+            if (!altResponse.ok) {
+              throw new Error(`Failed to fetch orders: ${altResponse.status}`);
+            }
+            
+            const altData = await altResponse.json();
+            processOrdersData(altData);
+            return;
+          }
+          throw new Error(`Failed to fetch orders: ${response.status}`);
+        }
+
+        const data = await response.json();
+        processOrdersData(data);
+        
+      } catch (error: any) {
+        console.error("Error fetching user orders:", error);
+        setOrdersError(error.message || "Could not load your orders");
+        toast({
+          title: "Error",
+          description: error.message || "Could not load your orders. Please try again later.",
+          variant: "destructive",
+        });
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+
+    const processOrdersData = (data: any) => {
+      // Handle different response formats
+      let ordersArray = Array.isArray(data) ? data : (data.orders || []);
+      
+      setUserOrders(
+        ordersArray.map((order: any) => ({
+          id: order.id,
+          productName: order.productName || order.product?.name || "Unknown Product",
+          quantity: order.quantity,
+          totalAmount: order.totalAmount || order.total || 0,
+          status: order.status || "pending",
+          orderDate: order.orderDate || order.createdAt || new Date().toISOString(),
+        }))
+      );
+    };
+
+    if (isAuthenticated && user) {
+      fetchUserOrders();
     }
-  };
-
-  if (isAuthenticated && user) {
-    fetchUserOrders();
-  }
-}, [isAuthenticated, user, toast]);
-
+  }, [isAuthenticated, user, toast, logout, navigate]);
 
   const handleLogout = () => {
-    logout(); // Call the logout function from AuthContext
-    navigate("/login"); // Redirect to login page after logout
+    logout();
+    navigate("/login");
   };
 
   if (!isAuthenticated || !user) {
-    // Render nothing or a loading spinner while redirecting
     return null;
   }
 
   const formatKES = (n: number) =>
-    new Intl.NumberFormat("en-KE", { style: "currency", currency: "KES", maximumFractionDigits: 0 }).format(n);
+    new Intl.NumberFormat("en-KE", { 
+      style: "currency", 
+      currency: "KES", 
+      maximumFractionDigits: 0 
+    }).format(n);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -145,11 +184,13 @@ useEffect(() => {
             </div>
 
             {/* Account Image */}
-          <div className="flex justify-center items-center">
-  <div className="w-32 h-32 rounded-full bg-dark-blue flex items-center justify-center">
-    <span className="text-white text-lg font-medium">Welcome</span>
-  </div>
-</div>
+            <div className="flex justify-center items-center">
+              <div className="w-32 h-32 rounded-full bg-blue-600 flex items-center justify-center">
+                <span className="text-white text-4xl font-medium">
+                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                </span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -163,15 +204,41 @@ useEffect(() => {
           </CardHeader>
           <CardContent>
             {ordersLoading ? (
-              <p className="text-center text-muted-foreground py-10">Loading orders...</p>
+              <div className="text-center py-10">
+                <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+                <p className="text-muted-foreground">Loading orders...</p>
+              </div>
+            ) : ordersError ? (
+              <div className="text-center py-10">
+                <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+                <p className="text-destructive font-medium">{ordersError}</p>
+                <p className="text-muted-foreground mt-2">
+                  Please check if the orders endpoint is available or try again later.
+                </p>
+                <Button 
+                  onClick={() => window.location.reload()} 
+                  className="mt-4"
+                >
+                  Try Again
+                </Button>
+              </div>
             ) : userOrders.length === 0 ? (
-              <p className="text-center text-muted-foreground py-10">You have no past orders.</p>
+              <div className="text-center py-10">
+                <ShoppingBag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">You have no past orders.</p>
+                <Button 
+                  onClick={() => navigate("/products")} 
+                  className="mt-4"
+                >
+                  Browse Products
+                </Button>
+              </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto rounded-lg border">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Order ID
                       </th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -186,14 +253,14 @@ useEffect(() => {
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-lg">
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Date
                       </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {userOrders.map((order) => (
-                      <tr key={order.id} className="hover:bg-gray-50">
+                      <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           #{order.id}
                         </td>
@@ -203,18 +270,17 @@ useEffect(() => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                           {order.quantity}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">
                           {formatKES(order.totalAmount)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                            {order.status}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
+                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-  {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : "N/A"}
-</td>
-
+                          {new Date(order.orderDate).toLocaleDateString()}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
