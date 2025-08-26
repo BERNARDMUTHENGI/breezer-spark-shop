@@ -1532,7 +1532,7 @@ const handleDeleteOrder = async (id: number) => {
             if (res.ok) {
               // Put uploaded image URL into text field
               const urlField = document.getElementById("thumbnailUrl") as HTMLInputElement;
-              if (urlField) urlField.value = `http://localhost:5000${data.imageUrl}`;
+              if (urlField) urlField.value = `https://breezer-electronics-5.onrender.com${data.imageUrl}`;
             } else {
               alert(data.message || "Upload failed");
             }
