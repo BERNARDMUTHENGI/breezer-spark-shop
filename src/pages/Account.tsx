@@ -38,60 +38,55 @@ const Account = () => {
   }, [isAuthenticated, navigate, toast]);
 
   // Fetch user-specific orders
-  useEffect(() => {
-    const fetchUserOrders = async () => {
-      if (!user?.id) { // Only fetch if user is logged in and has an ID
-        setOrdersLoading(false);
-        return;
-      }
-      setOrdersLoading(true);
-      try {
-        // In a real application, you would use a protected endpoint
-        // and send the user's token for authorization.
-        // For now, this is a mock fetch.
-        const response = await new Promise((resolve) => setTimeout(() => {
-          // Dummy orders for the "Test User"
-          if (user.id === 1) {
-            resolve({
-              success: true,
-              orders: [
-                { id: 101, productName: "Solar Panel 300W", quantity: 2, totalAmount: 50000, status: "completed", orderDate: "2023-01-15" },
-                { id: 102, productName: "LED Floodlight", quantity: 5, totalAmount: 7500, status: "processing", orderDate: "2023-03-01" },
-                { id: 103, productName: "Generator 5kVA", quantity: 1, totalAmount: 120000, status: "pending", orderDate: "2023-04-20" },
-              ]
-            });
-          } else {
-            resolve({ success: true, orders: [] }); // No orders for other users
-          }
-        }, 1000));
-
-        const result = response as { success: boolean; orders: UserOrder[] };
-
-        if (result.success) {
-          setUserOrders(result.orders);
-        } else {
-          toast({
-            title: "Failed to Fetch Orders",
-            description: "Could not retrieve your order history.",
-            variant: "destructive",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching user orders:", error);
-        toast({
-          title: "Error",
-          description: "An error occurred while loading orders.",
-          variant: "destructive",
-        });
-      } finally {
-        setOrdersLoading(false);
-      }
-    };
-
-    if (isAuthenticated && user) {
-        fetchUserOrders();
+useEffect(() => {
+  const fetchUserOrders = async () => {
+    if (!user?.id) {
+      setOrdersLoading(false);
+      return;
     }
-  }, [isAuthenticated, user, toast]); // Re-fetch when auth status or user changes
+    setOrdersLoading(true);
+    try {
+     const res = await fetch(`${API_BASE_URL}/orders/me`, {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+});
+
+
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch orders");
+      }
+
+      const data = await res.json();
+    setUserOrders(
+  data.map((order: any) => ({
+    id: order.id,
+    productName: order.productName || "N/A", // match backend key
+    quantity: order.quantity,
+    totalAmount: order.totalAmount || 0,    // match backend key
+    status: order.status,
+    orderDate: order.orderDate || order.createdAt, // fallback to createdAt
+  }))
+);
+
+    } catch (error) {
+      console.error("Error fetching user orders:", error);
+      toast({
+        title: "Error",
+        description: "Could not load your orders. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
+  if (isAuthenticated && user) {
+    fetchUserOrders();
+  }
+}, [isAuthenticated, user, toast]);
+
 
   const handleLogout = () => {
     logout(); // Call the logout function from AuthContext
@@ -150,13 +145,11 @@ const Account = () => {
             </div>
 
             {/* Account Image */}
-            <div className="flex justify-center items-center">
-              <img
-                src="https://placehold.co/300x300/e0e0e0/000000?text=Your+Account" // Placeholder image URL
-                alt="User Account"
-                className="rounded-full shadow-lg border-4 border-primary/20"
-              />
-            </div>
+          <div className="flex justify-center items-center">
+  <div className="w-32 h-32 rounded-full bg-dark-blue flex items-center justify-center">
+    <span className="text-white text-lg font-medium">Welcome</span>
+  </div>
+</div>
           </CardContent>
         </Card>
 
@@ -219,8 +212,9 @@ const Account = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {new Date(order.orderDate).toLocaleDateString()}
-                        </td>
+  {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : "N/A"}
+</td>
+
                       </tr>
                     ))}
                   </tbody>

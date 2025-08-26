@@ -12,7 +12,7 @@ export const Footer = () => {
               <div className="bg-secondary rounded-lg p-2">
                 <Zap className="h-6 w-6 text-secondary-foreground" />
               </div>
-              <span className="text-xl font-bold">Breezer Electric</span>
+              <span className="text-xl font-bold">Breezer Electric and automation Limited</span>
             </div>
             <p className="text-primary-foreground/80">
               Professional electrical contracting, generator installation, and automation solutions.
@@ -84,7 +84,7 @@ export const Footer = () => {
 
         <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center">
           <p className="text-primary-foreground/60">
-            © 2024 Breezer Electric & Automation Limited. All rights reserved.
+            © 2025 Breezer Electric & Automation Limited. All rights reserved.
           </p>
         </div>
       </div>

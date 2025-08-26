@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,7 +34,9 @@ import {
   Home, // For ProjectType icons
   Building, // For ProjectType icons
   Factory, // For ProjectType icons
-  Award // For ProjectType icons
+  Award, // For ProjectType icons
+  Menu, // For mobile menu
+  X // For mobile menu close
 } from "lucide-react";
 
 // Define interfaces for data structures reflecting the new backend schema
@@ -116,11 +119,16 @@ const Admin = () => {
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [isEditingProduct, setIsEditingProduct] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // New state for Categories
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
+
+  //state for upload image from local storage
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState('');
 
   // New state for Portfolio Projects
   const [isAddingProject, setIsAddingProject] = useState(false);
@@ -132,6 +140,7 @@ const Admin = () => {
   const [isAddingProjectType, setIsAddingProjectType] = useState(false);
   const [isEditingProjectType, setIsEditingProjectType] = useState(false);
   const [currentProjectType, setCurrentProjectType] = useState<ProjectType | null>(null);
+
 
   const { toast } = useToast();
 
@@ -165,6 +174,40 @@ const Admin = () => {
       default: return Type; // Default icon if not found
     }
   };
+
+// Add this function to handle image uploads
+const handleImageUpload = async (file) => {
+  if (!file) return null;
+  
+  setIsUploading(true);
+  const formData = new FormData();
+  formData.append('image', file);
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error('Upload failed');
+    }
+    
+    const data = await response.json();
+    setUploadedImageUrl(data.imageUrl);
+    setIsUploading(false);
+    return data.imageUrl;
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    setIsUploading(false);
+    toast({
+      title: "Upload Failed",
+      description: "Failed to upload image. Please try again.",
+      variant: "destructive",
+    });
+    return null;
+  }
+};
 
 
   // --- API Fetching Functions ---
@@ -229,25 +272,37 @@ const Admin = () => {
   }, [toast]);
 
   const fetchOrders = useCallback(async () => {
-    console.log("Frontend: Attempting to fetch orders...");
-    try {
-      const response = await fetch(`${API_BASE_URL}/admin/orders`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data: Order[] = await response.json();
-      console.log("Frontend: Fetched orders:", data);
-      setOrders(data);
+  console.log("Frontend: Attempting to fetch orders...");
+  try {
+    const token = localStorage.getItem("token"); // Ensure your login stores the JWT here
+    if (!token) {
+      throw new Error("No authentication token found. Please log in.");
     }
-    catch (error) {
-      console.error("Frontend: Error fetching orders:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load orders.",
-        variant: "destructive",
-      });
+
+    const response = await fetch(`${API_BASE_URL}/admin/orders`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Add token here
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  }, [toast]);
+
+    const data: Order[] = await response.json();
+    console.log("Frontend: Fetched orders:", data);
+    setOrders(data);
+  } catch (error: any) {
+    console.error("Frontend: Error fetching orders:", error);
+    toast({
+      title: "Error",
+      description: error.message || "Failed to load orders.",
+      variant: "destructive",
+    });
+  }
+}, [toast]);
+
 
   const fetchProducts = useCallback(async () => {
     console.log("Frontend: Attempting to fetch products...");
@@ -455,80 +510,93 @@ const Admin = () => {
   };
 
   // --- CRUD Operations Handlers for Orders ---
-  const handleUpdateOrderStatus = async (orderId: number, currentStatus: string) => { /* ... (existing code) ... */
-    let newStatus: "pending" | "processing" | "completed";
-    if (currentStatus === "pending") {
-      newStatus = "processing";
-    } else if (currentStatus === "processing") {
-      newStatus = "completed";
-    } else {
-      newStatus = "pending";
+
+const handleUpdateOrderStatus = async (orderId: number, currentStatus: string) => {
+  let newStatus: "pending" | "processing" | "completed";
+  if (currentStatus === "pending") {
+    newStatus = "processing";
+  } else if (currentStatus === "processing") {
+    newStatus = "completed";
+  } else {
+    newStatus = "pending";
+  }
+
+  if (!window.confirm(`Change order #${orderId} status from '${currentStatus}' to '${newStatus}'?`)) {
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token"); // Get JWT token from storage
+    if (!token) throw new Error("No authentication token found. Please log in.");
+
+    const response = await fetch(`${API_BASE_URL}/admin/orders/${orderId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Add token here
+      },
+      body: JSON.stringify({ status: newStatus }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to update order status");
     }
 
-    if (!window.confirm(`Change order #${orderId} status from '${currentStatus}' to '${newStatus}'?`)) {
-      return;
+    const result = await response.json();
+    toast({
+      title: "Order Updated",
+      description: result.message,
+    });
+    fetchOrders();
+    fetchDashboardStats();
+  } catch (error: any) {
+    console.error("Error updating order status:", error);
+    toast({
+      title: "Error",
+      description: `Failed to update order: ${error.message}`,
+      variant: "destructive",
+    });
+  }
+};
+
+const handleDeleteOrder = async (id: number) => {
+  if (!window.confirm("Are you sure you want to delete this order? This action cannot be undone.")) {
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token"); // Get JWT token from storage
+    if (!token) throw new Error("No authentication token found. Please log in.");
+
+    const response = await fetch(`${API_BASE_URL}/admin/orders/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`, // Add token here
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to delete order");
     }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/admin/orders/${orderId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update order status");
-      }
-
-      const result = await response.json();
-      toast({
-        title: "Order Updated",
-        description: result.message,
-      });
-      fetchOrders();
-      fetchDashboardStats();
-    } catch (error: any) {
-      console.error("Error updating order status:", error);
-      toast({
-        title: "Error",
-        description: `Failed to update order: ${error.message}`,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeleteOrder = async (id: number) => { /* ... (existing code) ... */
-    if (!window.confirm("Are you sure you want to delete this order? This action cannot be undone.")) {
-      return;
-    }
-    try {
-      const response = await fetch(`${API_BASE_URL}/admin/orders/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to delete order");
-      }
-
-      const result = await response.json();
-      toast({
-        title: "Order Deleted",
-        description: result.message,
-      });
-      fetchOrders();
-      fetchDashboardStats();
-    } catch (error: any) {
-      console.error("Error deleting order:", error);
-      toast({
-        title: "Error",
-        description: `Failed to delete order: ${error.message}`,
-        variant: "destructive",
-      });
-    }
-  };
-
+    const result = await response.json();
+    toast({
+      title: "Order Deleted",
+      description: result.message,
+    });
+    fetchOrders();
+    fetchDashboardStats();
+  } catch (error: any) {
+    console.error("Error deleting order:", error);
+    toast({
+      title: "Error",
+      description: `Failed to delete order: ${error.message}`,
+      variant: "destructive",
+    });
+  }
+};
   // --- CRUD Operations Handlers for Categories ---
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -903,9 +971,25 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-muted/30 font-inter">
+      {/* Mobile Header - Fixed position */}
+      <div className="lg:hidden bg-primary text-primary-foreground p-4 flex justify-between items-center fixed top-0 left-0 right-0 z-50">
+        <h1 className="text-xl font-bold">Admin Panel</h1>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="text-primary-foreground"
+        >
+          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </Button>
+      </div>
+
+      {/* Add padding to account for fixed header on mobile */}
+      <div className="lg:hidden pt-16"></div>
+
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 bg-primary text-primary-foreground min-h-screen p-6 shadow-lg rounded-r-xl">
+        <div className={`${mobileMenuOpen ? 'block' : 'hidden'} lg:block w-64 bg-primary text-primary-foreground min-h-screen p-6 shadow-lg rounded-r-xl fixed lg:static z-40`}>
           <div className="mb-10 text-center">
             <h1 className="text-3xl font-extrabold tracking-tight">Admin</h1>
             <p className="text-primary-foreground/80 text-sm">Breezer Electric</p>
@@ -915,7 +999,10 @@ const Admin = () => {
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setMobileMenuOpen(false);
+                }}
                 className={`w-full flex items-center space-x-3 px-5 py-3 rounded-xl transition-all duration-200 ease-in-out
                 ${activeTab === tab.id
                     ? "bg-secondary text-secondary-foreground shadow-md transform scale-105"
@@ -931,46 +1018,46 @@ const Admin = () => {
               <Button
                 variant="ghost"
                 className="w-full flex items-center space-x-3 px-5 py-3 rounded-xl text-primary-foreground/80 hover:bg-primary-hover hover:text-primary-foreground justify-start"
-                onClick={() => window.open("https://your-website-url.com", "_blank")} // Replace with your actual website URL
+                onClick={() => window.open("https://breezerelectricals.com.com", "_blank")}
               >
                 <Link className="h-5 w-5" />
                 <span className="font-medium">Visit Website</span>
               </Button>
-              <Button
+              {/* <Button
                 variant="ghost"
                 className="w-full flex items-center space-x-3 px-5 py-3 rounded-xl text-red-300 hover:bg-primary-hover hover:text-red-100 justify-start"
-                onClick={() => { /* Implement actual logout logic here */ toast({ title: "Logged out!", description: "You have been successfully logged out.", duration: 3000 }); }}
+                onClick={() => { toast({ title: "Logged out!", description: "You have been successfully logged out.", duration: 3000 }); }}
               >
                 <LogOut className="h-5 w-5" />
                 <span className="font-medium">Logout</span>
-              </Button>
+              </Button> */}
             </div>
           </nav>
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-10">
+        <div className="flex-1 p-4 lg:p-10 lg:ml-0">
           {/* Dashboard Tab */}
           {activeTab === "dashboard" && (
-            <div className="space-y-10">
-              <h2 className="text-4xl font-extrabold text-primary">Dashboard Overview</h2>
+            <div className="space-y-6 lg:space-y-10">
+              <h2 className="text-3xl lg:text-4xl font-extrabold text-primary">Dashboard Overview</h2>
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
                 {dashboardStats.map((stat, index) => (
                   <Card key={index} className="rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300">
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 lg:p-6">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm text-muted-foreground">{stat.title}</p>
-                          <p className="text-3xl font-bold text-primary mt-1">{stat.value}</p>
+                          <p className="text-2xl lg:text-3xl font-bold text-primary mt-1">{stat.value}</p>
                           <p className={`text-sm ${stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'} flex items-center mt-1`}>
                             {stat.change.startsWith('+') ? <TrendingUp className="h-4 w-4 mr-1" /> : null}
                             {stat.change}
                           </p>
                         </div>
                         <div className={`p-3 rounded-full ${stat.color.replace('text-', 'bg-')}/10`}>
-                            <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                            <stat.icon className={`h-6 w-6 lg:h-8 lg:w-8 ${stat.color}`} />
                         </div>
                       </div>
                     </CardContent>
@@ -1012,7 +1099,7 @@ const Admin = () => {
           {/* Orders Tab */}
           {activeTab === "orders" && (
             <div className="space-y-6">
-              <h2 className="text-3xl font-bold text-primary">Order Management</h2>
+              <h2 className="text-2xl lg:text-3xl font-bold text-primary">Order Management</h2>
 
               <Card className="rounded-xl shadow-lg border border-gray-200">
                 <CardHeader>
@@ -1055,7 +1142,7 @@ const Admin = () => {
                               </td>
                               <td className="p-4 text-sm text-muted-foreground">{new Date(order.orderDate).toLocaleDateString()}</td>
                               <td className="p-4">
-                                <div className="flex space-x-2">
+                                <div className="flex flex-col sm:flex-row gap-2">
                                   <Button size="sm" variant="outline" title="View Details">
                                     <Eye className="h-4 w-4" />
                                   </Button>
@@ -1086,10 +1173,10 @@ const Admin = () => {
           {activeTab === "products" && (
             <div className="space-y-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-bold text-primary">Product Management</h2>
-                <Button onClick={() => setIsAddingProduct(true)} className="px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all duration-200">
-                  <Plus className="h-5 w-5 mr-2" />
-                  Add Product
+                <h2 className="text-2xl lg:text-3xl font-bold text-primary">Product Management</h2>
+                <Button onClick={() => setIsAddingProduct(true)} className="px-4 py-2 lg:px-6 lg:py-3 rounded-full shadow-md hover:shadow-lg transition-all duration-200">
+                  <Plus className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
+                  <span className="hidden sm:inline">Add Product</span>
                 </Button>
               </div>
 
@@ -1132,7 +1219,7 @@ const Admin = () => {
                                 )}
                               </td>
                               <td className="p-4">
-                                <div className="flex space-x-2">
+                                <div className="flex flex-col sm:flex-row gap-2">
                                   <Button size="sm" variant="outline" title="Edit Product" onClick={() => handleEditButtonClick(product)}>
                                     <Edit className="h-4 w-4" />
                                   </Button>
@@ -1161,14 +1248,14 @@ const Admin = () => {
             </div>
           )}
 
-          {/* Categories Tab (Existing) */}
+          {/* Categories Tab */}
           {activeTab === "categories" && (
             <div className="space-y-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-bold text-primary">Category Management</h2>
-                <Button onClick={() => setIsAddingCategory(true)} className="px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all duration-200">
-                  <Plus className="h-5 w-5 mr-2" />
-                  Add Category
+                <h2 className="text-2xl lg:text-3xl font-bold text-primary">Category Management</h2>
+                <Button onClick={() => setIsAddingCategory(true)} className="px-4 py-2 lg:px-6 lg:py-3 rounded-full shadow-md hover:shadow-lg transition-all duration-200">
+                  <Plus className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
+                  <span className="hidden sm:inline">Add Category</span>
                 </Button>
               </div>
 
@@ -1195,7 +1282,7 @@ const Admin = () => {
                               <td className="p-4">{category.name}</td>
                               <td className="p-4 text-muted-foreground">{category.slug}</td>
                               <td className="p-4">
-                                <div className="flex space-x-2">
+                                <div className="flex flex-col sm:flex-row gap-2">
                                   <Button size="sm" variant="outline" title="Edit Category" onClick={() => { setCurrentCategory(category); setIsEditingCategory(true); }}>
                                     <Edit className="h-4 w-4" />
                                   </Button>
@@ -1224,14 +1311,14 @@ const Admin = () => {
             </div>
           )}
 
-          {/* Portfolio Tab (Existing) */}
+          {/* Portfolio Tab */}
           {activeTab === "portfolio" && (
             <div className="space-y-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-bold text-primary">Portfolio Management</h2>
-                <Button onClick={() => setIsAddingProject(true)} className="px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all duration-200">
-                  <Plus className="h-5 w-5 mr-2" />
-                  Add Project
+                <h2 className="text-2xl lg:text-3xl font-bold text-primary">Portfolio Management</h2>
+                <Button onClick={() => setIsAddingProject(true)} className="px-4 py-2 lg:px-6 lg:py-3 rounded-full shadow-md hover:shadow-lg transition-all duration-200">
+                  <Plus className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
+                  <span className="hidden sm:inline">Add Project</span>
                 </Button>
               </div>
 
@@ -1260,7 +1347,7 @@ const Admin = () => {
                             <tr key={project.id} className="border-b hover:bg-muted/50 transition-colors">
                               <td className="p-4 font-medium text-gray-700">{project.title}</td>
                               <td className="p-4">{project.category}</td>
-                              <td className="p-4 capitalize">{project.type_name || 'N/A'}</td> {/* Display type_name */}
+                              <td className="p-4 capitalize">{project.type_name || 'N/A'}</td>
                               <td className="p-4">{project.location}</td>
                               <td className="p-4">{project.year}</td>
                               <td className="p-4 text-sm text-muted-foreground">
@@ -1274,7 +1361,7 @@ const Admin = () => {
                                 )}
                               </td>
                               <td className="p-4">
-                                <div className="flex space-x-2">
+                                <div className="flex flex-col sm:flex-row gap-2">
                                   <Button size="sm" variant="outline" title="Edit Project" onClick={() => handleEditProjectButtonClick(project)}>
                                     <Edit className="h-4 w-4" />
                                   </Button>
@@ -1303,14 +1390,14 @@ const Admin = () => {
             </div>
           )}
 
-          {/* Project Types Tab (NEW) */}
+          {/* Project Types Tab */}
           {activeTab === "project-types" && (
             <div className="space-y-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-bold text-primary">Project Type Management</h2>
-                <Button onClick={() => setIsAddingProjectType(true)} className="px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all duration-200">
-                  <Plus className="h-5 w-5 mr-2" />
-                  Add Project Type
+                <h2 className="text-2xl lg:text-3xl font-bold text-primary">Project Type Management</h2>
+                <Button onClick={() => setIsAddingProjectType(true)} className="px-4 py-2 lg:px-6 lg:py-3 rounded-full shadow-md hover:shadow-lg transition-all duration-200">
+                  <Plus className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
+                  <span className="hidden sm:inline">Add Project Type</span>
                 </Button>
               </div>
 
@@ -1349,7 +1436,7 @@ const Admin = () => {
                                   )}
                                 </td>
                                 <td className="p-4">
-                                  <div className="flex space-x-2">
+                                  <div className="flex flex-col sm:flex-row gap-2">
                                     <Button size="sm" variant="outline" title="Edit Type" onClick={() => handleEditProjectTypeButtonClick(type)}>
                                       <Edit className="h-4 w-4" />
                                     </Button>
@@ -1381,10 +1468,10 @@ const Admin = () => {
         </div>
       </div>
 
-      {/* Add Product Modal (Existing) */}
+      {/* Add Product Modal */}
       {isAddingProduct && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-8 w-full max-w-md shadow-2xl">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl mx-auto my-auto">
             <h3 className="text-2xl font-bold text-primary mb-6">Add New Product</h3>
 
             <form onSubmit={handleAddProduct} className="space-y-5">
@@ -1418,10 +1505,64 @@ const Admin = () => {
                 <Label htmlFor="sku" className="text-sm font-medium text-gray-700 flex items-center"><Hash className="h-4 w-4 mr-2" />SKU</Label>
                 <Input id="sku" name="sku" className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
               </div>
-              <div>
-                <Label htmlFor="thumbnailUrl" className="text-sm font-medium text-gray-700 flex items-center"><ImageIcon className="h-4 w-4 mr-2" />Thumbnail URL</Label>
-                <Input id="thumbnailUrl" name="thumbnailUrl" type="url" placeholder="https://example.com/image.jpg" className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
-              </div>
+              {/* Thumbnail Upload (File + URL) */}
+<div>
+  <Label htmlFor="thumbnailUpload" className="text-sm font-medium text-gray-700 flex items-center">
+    <ImageIcon className="h-4 w-4 mr-2" />Thumbnail
+  </Label>
+  <div className="flex gap-2 items-center mt-1">
+    {/* Hidden File Input */}
+    <input
+      id="thumbnailUpload"
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={async (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          const formData = new FormData();
+          formData.append("image", file);
+
+          try {
+            const res = await fetch("http://localhost:5000/api/upload", {
+              method: "POST",
+              body: formData,
+            });
+            const data = await res.json();
+            if (res.ok) {
+              // Put uploaded image URL into text field
+              const urlField = document.getElementById("thumbnailUrl") as HTMLInputElement;
+              if (urlField) urlField.value = `http://localhost:5000${data.imageUrl}`;
+            } else {
+              alert(data.message || "Upload failed");
+            }
+          } catch (err) {
+            console.error("Upload error:", err);
+            alert("Upload failed, check console.");
+          }
+        }
+      }}
+    />
+    {/* Choose File Button */}
+    <Button
+      type="button"
+      variant="outline"
+      onClick={() => document.getElementById("thumbnailUpload")?.click()}
+    >
+      Choose File
+    </Button>
+
+    {/* Manual URL Entry */}
+    <Input
+      id="thumbnailUrl"
+      name="thumbnailUrl"
+      type="url"
+      placeholder="https://example.com/image.jpg"
+      className="flex-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
+    />
+  </div>
+</div>
+
               <div>
                 <Label htmlFor="stock" className="text-sm font-medium text-gray-700 flex items-center"><Package className="h-4 w-4 mr-2" />Stock Quantity *</Label>
                 <Input id="stock" name="stock" type="number" min="0" required className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
@@ -1431,7 +1572,7 @@ const Admin = () => {
                 <Label htmlFor="isActive" className="text-sm font-medium text-gray-700 flex items-center"><ToggleLeft className="h-4 w-4 mr-2" />Active</Label>
               </div>
 
-              <div className="flex gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button type="submit" className="flex-1 py-2.5 rounded-lg text-lg font-semibold bg-green-600 hover:bg-green-700 transition-colors">
                   Add Product
                 </Button>
@@ -1449,10 +1590,10 @@ const Admin = () => {
         </div>
       )}
 
-      {/* Edit Product Modal (Existing) */}
+      {/* Edit Product Modal */}
       {isEditingProduct && currentProduct && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-8 w-full max-w-md shadow-2xl">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl mx-auto my-auto">
             <h3 className="text-2xl font-bold text-primary mb-6">Edit Product</h3>
 
             <form onSubmit={handleEditProduct} className="space-y-5">
@@ -1487,10 +1628,64 @@ const Admin = () => {
                 <Label htmlFor="edit-sku" className="text-sm font-medium text-gray-700 flex items-center"><Hash className="h-4 w-4 mr-2" />SKU</Label>
                 <Input id="edit-sku" name="sku" defaultValue={currentProduct.sku || ''} className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
               </div>
-              <div>
-                <Label htmlFor="edit-thumbnailUrl" className="text-sm font-medium text-gray-700 flex items-center"><ImageIcon className="h-4 w-4 mr-2" />Thumbnail URL</Label>
-                <Input id="edit-thumbnailUrl" name="thumbnailUrl" type="url" placeholder="https://example.com/image.jpg" defaultValue={currentProduct.thumbnailUrl || ''} className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
-              </div>
+              {/* Thumbnail Upload (File + URL) */}
+<div>
+  <Label htmlFor="thumbnailUpload" className="text-sm font-medium text-gray-700 flex items-center">
+    <ImageIcon className="h-4 w-4 mr-2" />Thumbnail
+  </Label>
+  <div className="flex gap-2 items-center mt-1">
+    {/* Hidden File Input */}
+    <input
+      id="thumbnailUpload"
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={async (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          const formData = new FormData();
+          formData.append("image", file);
+
+          try {
+            const res = await fetch("http://localhost:5000/api/upload", {
+              method: "POST",
+              body: formData,
+            });
+            const data = await res.json();
+            if (res.ok) {
+              // Put uploaded image URL into text field
+              const urlField = document.getElementById("thumbnailUrl") as HTMLInputElement;
+              if (urlField) urlField.value = `http://localhost:5000${data.imageUrl}`;
+            } else {
+              alert(data.message || "Upload failed");
+            }
+          } catch (err) {
+            console.error("Upload error:", err);
+            alert("Upload failed, check console.");
+          }
+        }
+      }}
+    />
+    {/* Choose File Button */}
+    <Button
+      type="button"
+      variant="outline"
+      onClick={() => document.getElementById("thumbnailUpload")?.click()}
+    >
+      Choose File
+    </Button>
+
+    {/* Manual URL Entry */}
+    <Input
+      id="thumbnailUrl"
+      name="thumbnailUrl"
+      type="url"
+      placeholder="https://example.com/image.jpg"
+      className="flex-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
+    />
+  </div>
+</div>
+
               <div>
                 <Label htmlFor="edit-stock" className="text-sm font-medium text-gray-700 flex items-center"><Package className="h-4 w-4 mr-2" />Stock Quantity *</Label>
                 <Input id="edit-stock" name="stock" type="number" min="0" required defaultValue={currentProduct.stock} className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
@@ -1500,7 +1695,7 @@ const Admin = () => {
                 <Label htmlFor="edit-isActive" className="text-sm font-medium text-gray-700 flex items-center"><ToggleLeft className="h-4 w-4 mr-2" />Active</Label>
               </div>
 
-              <div className="flex gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button type="submit" className="flex-1 py-2.5 rounded-lg text-lg font-semibold bg-blue-600 hover:bg-blue-700 transition-colors">
                   Save Changes
                 </Button>
@@ -1518,17 +1713,17 @@ const Admin = () => {
         </div>
       )}
 
-      {/* Add Category Modal (Existing) */}
+      {/* Add Category Modal */}
       {isAddingCategory && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-8 w-full max-w-md shadow-2xl">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl mx-auto my-auto">
             <h3 className="text-2xl font-bold text-primary mb-6">Add New Category</h3>
             <form onSubmit={handleAddCategory} className="space-y-5">
               <div>
                 <Label htmlFor="category-name" className="text-sm font-medium text-gray-700">Category Name *</Label>
                 <Input id="category-name" name="name" required className="mt-1 rounded-md" />
               </div>
-              <div className="flex gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button type="submit" className="flex-1 py-2.5 rounded-lg text-lg font-semibold bg-green-600 hover:bg-green-700 transition-colors">
                   Add Category
                 </Button>
@@ -1546,17 +1741,17 @@ const Admin = () => {
         </div>
       )}
 
-      {/* Edit Category Modal (Existing) */}
+       {/* Edit Category Modal (Existing) */}
       {isEditingCategory && currentCategory && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-8 w-full max-w-md shadow-2xl">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
             <h3 className="text-2xl font-bold text-primary mb-6">Edit Category</h3>
             <form onSubmit={handleEditCategory} className="space-y-5">
               <div>
                 <Label htmlFor="edit-category-name" className="text-sm font-medium text-gray-700">Category Name *</Label>
                 <Input id="edit-category-name" name="name" required defaultValue={currentCategory.name} className="mt-1 rounded-md" />
               </div>
-              <div className="flex gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button type="submit" className="flex-1 py-2.5 rounded-lg text-lg font-semibold bg-blue-600 hover:bg-blue-700 transition-colors">
                   Save Changes
                 </Button>
@@ -1577,7 +1772,7 @@ const Admin = () => {
       {/* Add Project Modal (Existing) */}
       {isAddingProject && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-8 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
             <h3 className="text-2xl font-bold text-primary mb-6">Add New Portfolio Project</h3>
             <form onSubmit={handleAddProject} className="space-y-5">
               <div>
@@ -1620,12 +1815,66 @@ const Admin = () => {
                 <Label htmlFor="project-services" className="text-sm font-medium text-gray-700 flex items-center"><List className="h-4 w-4 mr-2" />Services (comma-separated, e.g., Wiring, Panel Installation) *</Label>
                 <Input id="project-services" name="services" required className="mt-1 rounded-md" placeholder="e.g., Electrical Wiring, Solar Installation" />
               </div>
-              <div>
-                <Label htmlFor="project-imageUrl" className="text-sm font-medium text-gray-700 flex items-center"><Link2 className="h-4 w-4 mr-2" />Image URL *</Label>
-                <Input id="project-imageUrl" name="imageUrl" type="url" required className="mt-1 rounded-md" placeholder="https://example.com/project-image.jpg" />
-              </div>
+             {/* Project Image Upload (File + URL) */}
+<div>
+  <Label htmlFor="project-imageUpload" className="text-sm font-medium text-gray-700 flex items-center">
+    <Link2 className="h-4 w-4 mr-2" />Project Image *
+  </Label>
+  <div className="flex gap-2 items-center mt-1">
+    {/* Hidden File Input */}
+    <input
+      id="project-imageUpload"
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={async (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          const formData = new FormData();
+          formData.append("image", file);
 
-              <div className="flex gap-4 pt-4">
+          try {
+            const res = await fetch("http://localhost:5000/api/upload", {
+              method: "POST",
+              body: formData,
+            });
+            const data = await res.json();
+            if (res.ok) {
+              // Put uploaded image URL into text field
+              const urlField = document.getElementById("project-imageUrl") as HTMLInputElement;
+              if (urlField) urlField.value = `http://localhost:5000${data.imageUrl}`;
+            } else {
+              alert(data.message || "Upload failed");
+            }
+          } catch (err) {
+            console.error("Upload error:", err);
+            alert("Upload failed, check console.");
+          }
+        }
+      }}
+    />
+    {/* Choose File Button */}
+    <Button
+      type="button"
+      variant="outline"
+      onClick={() => document.getElementById("project-imageUpload")?.click()}
+    >
+      Choose File
+    </Button>
+
+    {/* Manual URL Entry */}
+    <Input
+      id="project-imageUrl"
+      name="imageUrl"
+      type="url"
+      required
+      placeholder="https://example.com/project-image.jpg"
+      className="flex-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
+    />
+  </div>
+</div>
+
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button type="submit" className="flex-1 py-2.5 rounded-lg text-lg font-semibold bg-green-600 hover:bg-green-700 transition-colors">
                   Add Project
                 </Button>
@@ -1646,7 +1895,7 @@ const Admin = () => {
       {/* Edit Project Modal (Existing) */}
       {isEditingProject && currentProject && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-8 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
             <h3 className="text-2xl font-bold text-primary mb-6">Edit Portfolio Project</h3>
             <form onSubmit={handleEditProject} className="space-y-5">
               <div>
@@ -1691,12 +1940,67 @@ const Admin = () => {
                 <Label htmlFor="edit-project-services" className="text-sm font-medium text-gray-700 flex items-center"><List className="h-4 w-4 mr-2" />Services (comma-separated) *</Label>
                 <Input id="edit-project-services" name="services" required defaultValue={currentProject.services.join(', ')} className="mt-1 rounded-md" />
               </div>
-              <div>
-                <Label htmlFor="edit-project-imageUrl" className="text-sm font-medium text-gray-700 flex items-center"><Link2 className="h-4 w-4 mr-2" />Image URL *</Label>
-                <Input id="edit-project-imageUrl" name="imageUrl" type="url" required defaultValue={currentProject.image} className="mt-1 rounded-md" />
-              </div>
+            {/* Project Image Upload (File + URL) */}
+<div>
+  <Label htmlFor="project-imageUpload" className="text-sm font-medium text-gray-700 flex items-center">
+    <Link2 className="h-4 w-4 mr-2" />Project Image *
+  </Label>
+  <div className="flex gap-2 items-center mt-1">
+    {/* Hidden File Input */}
+    <input
+      id="project-imageUpload"
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={async (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          const formData = new FormData();
+          formData.append("image", file);
 
-              <div className="flex gap-4 pt-4">
+          try {
+            const res = await fetch("http://localhost:5000/api/upload", {
+              method: "POST",
+              body: formData,
+            });
+            const data = await res.json();
+            if (res.ok) {
+              // Put uploaded image URL into text field
+              const urlField = document.getElementById("project-imageUrl") as HTMLInputElement;
+              if (urlField) urlField.value = `http://localhost:5000${data.imageUrl}`;
+            } else {
+              alert(data.message || "Upload failed");
+            }
+          } catch (err) {
+            console.error("Upload error:", err);
+            alert("Upload failed, check console.");
+          }
+        }
+      }}
+    />
+    {/* Choose File Button */}
+    <Button
+      type="button"
+      variant="outline"
+      onClick={() => document.getElementById("project-imageUpload")?.click()}
+    >
+      Choose File
+    </Button>
+
+    {/* Manual URL Entry */}
+    <Input
+      id="project-imageUrl"
+      name="imageUrl"
+      type="url"
+      required
+      placeholder="https://example.com/project-image.jpg"
+      className="flex-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
+    />
+  </div>
+</div>
+
+
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button type="submit" className="flex-1 py-2.5 rounded-lg text-lg font-semibold bg-blue-600 hover:bg-blue-700 transition-colors">
                   Save Changes
                 </Button>

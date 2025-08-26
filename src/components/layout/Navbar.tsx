@@ -31,7 +31,7 @@ export const Navbar = () => {
                 <Zap className="h-6 w-6 text-primary-foreground" />
               </div>
               <span className="text-xl font-bold text-primary">
-                Breezer Electric
+                Breezer Electric $ Automation
               </span>
             </Link>
           </div>
@@ -52,7 +52,7 @@ export const Navbar = () => {
               </Link>
             ))}
             <Button variant="outline" asChild>
-              <Link to="/admin">Admin</Link>
+              <Link to="/admin-login">Admin</Link>
             </Button>
 
             {/* Cart Icon (Desktop) - Now links to /cart */}
@@ -120,7 +120,7 @@ export const Navbar = () => {
                 </Link>
               ))}
               <Link
-                to="/admin"
+                to="/admin-login"
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50"
                 onClick={() => setIsOpen(false)}
               >
