@@ -8,7 +8,7 @@ import { useAuth } from "../contexts/AuthContext"; // Changed to direct relative
 import { useToast } from "@/hooks/use-toast";
 
 // Set API_BASE_URL directly for broader compatibility
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://breezer-electronics-5.onrender.com";
 
 const Register = () => {
   const [name, setName] = useState("");

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "../contexts/AuthContext"; // Changed to direct relative path
 import { useToast } from "@/hooks/use-toast";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://breezer-electronics-5.onrender.com";
 
 const Login = () => {
   const [identifier, setIdentifier] = useState(""); // Can be email or phone number

@@ -16,7 +16,7 @@ interface UserOrder {
   orderDate: string;
 }
 
-const API_BASE_URL = "http://localhost:5000/api"; // Your backend API URL
+const API_BASE_URL = "https://breezer-electronics-5.onrender.com"; // Your backend API URL
 
 const Account = () => {
   const { user, isAuthenticated, logout } = useAuth(); // Get user, isAuthenticated, and logout function

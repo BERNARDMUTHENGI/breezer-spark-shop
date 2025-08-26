@@ -26,7 +26,7 @@ type Product = {
   category: { id: number; name: string; slug: string } | null;
 };
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "https://breezer-electronics-5.onrender.com";
 
 const Shop = () => {
   const { toast } = useToast();
