@@ -1,11 +1,39 @@
 {
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
   "redirects": [
     {
       "source": "/",
-      "destination": "/admin",
-      "permanent": true,
       "has": [
-        { "type": "host", "value": "admin.breezerelectric.com" }
+        {
+          "type": "host",
+          "value": "admin.breezerelectric.com"
+        }
+      ],
+      "destination": "/admin",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,HEAD,PUT,PATCH,POST,DELETE"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        }
       ]
     }
   ]
