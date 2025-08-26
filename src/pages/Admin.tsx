@@ -1524,7 +1524,7 @@ const handleDeleteOrder = async (id: number) => {
           formData.append("image", file);
 
           try {
-            const res = await fetch("https://breezer-electronics-5.onrender.com/api/upload", {
+           const res = await fetch(`${API_BASE_URL}/upload`, {
               method: "POST",
               body: formData,
             });
@@ -1647,7 +1647,7 @@ const handleDeleteOrder = async (id: number) => {
           formData.append("image", file);
 
           try {
-            const res = await fetch("http://localhost:5000/api/upload", {
+            const res = await fetch(`${API_BASE_URL}/upload`, {
               method: "POST",
               body: formData,
             });
@@ -1655,7 +1655,7 @@ const handleDeleteOrder = async (id: number) => {
             if (res.ok) {
               // Put uploaded image URL into text field
               const urlField = document.getElementById("thumbnailUrl") as HTMLInputElement;
-              if (urlField) urlField.value = `http://localhost:5000${data.imageUrl}`;
+              if (urlField) urlField.value = `https://breezer-electronics-5.onrender.com${data.imageUrl}`;
             } else {
               alert(data.message || "Upload failed");
             }
@@ -1834,7 +1834,7 @@ const handleDeleteOrder = async (id: number) => {
           formData.append("image", file);
 
           try {
-            const res = await fetch("http://localhost:5000/api/upload", {
+            const res = await fetch(`${API_BASE_URL}/upload`, {
               method: "POST",
               body: formData,
             });
@@ -1842,7 +1842,7 @@ const handleDeleteOrder = async (id: number) => {
             if (res.ok) {
               // Put uploaded image URL into text field
               const urlField = document.getElementById("project-imageUrl") as HTMLInputElement;
-              if (urlField) urlField.value = `http://localhost:5000${data.imageUrl}`;
+              if (urlField) urlField.value = `https://breezer-electronics-5.onrender.com${data.imageUrl}`;
             } else {
               alert(data.message || "Upload failed");
             }
@@ -1959,7 +1959,7 @@ const handleDeleteOrder = async (id: number) => {
           formData.append("image", file);
 
           try {
-            const res = await fetch("http://localhost:5000/api/upload", {
+            const res = await fetch(`${API_BASE_URL}/upload`, {
               method: "POST",
               body: formData,
             });
@@ -1967,7 +1967,7 @@ const handleDeleteOrder = async (id: number) => {
             if (res.ok) {
               // Put uploaded image URL into text field
               const urlField = document.getElementById("project-imageUrl") as HTMLInputElement;
-              if (urlField) urlField.value = `http://localhost:5000${data.imageUrl}`;
+              if (urlField) urlField.value = `https://breezer-electronics-5.onrender.com${data.imageUrl}`;
             } else {
               alert(data.message || "Upload failed");
             }
