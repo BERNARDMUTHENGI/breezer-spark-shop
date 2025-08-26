@@ -13,7 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 const API_BASE_URL = "https://breezer-electronics-5.onrender.com";
 
 
-
 const Cart = () => {
   const { cartItems, removeFromCart, updateCartQuantity, cartTotal, cartItemCount, clearCart } = useCart();
   const { isAuthenticated, user,token } = useAuth(); // Get user object from AuthContext
@@ -84,7 +83,7 @@ const Cart = () => {
 
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/orders/me`, {
+        const response = await fetch(`${API_BASE_URL}/api/orders`, {
   method: "POST",
   headers: { 
     "Content-Type": "application/json",
