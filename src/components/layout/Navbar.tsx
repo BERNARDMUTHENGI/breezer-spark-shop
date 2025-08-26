@@ -51,9 +51,9 @@ export const Navbar = () => {
                 {item.name}
               </Link>
             ))}
-            <Button variant="outline" asChild>
+            {/* <Button variant="outline" asChild>
               <Link to="/admin-login">Admin</Link>
-            </Button>
+            </Button> */}
 
             {/* Cart Icon (Desktop) - Now links to /cart */}
             <Link to="/cart" className="relative p-2 rounded-full hover:bg-gray-100 transition-colors">
