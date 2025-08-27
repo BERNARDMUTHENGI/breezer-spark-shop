@@ -44,11 +44,12 @@ const handleCheckoutSubmit = async (e: React.FormEvent) => {
   setIsSubmittingOrder(true);
 
   const formData = new FormData(e.currentTarget as HTMLFormElement);
-  const customerName = formData.get("name") as string;
-  const customerEmail = formData.get("email") as string;
-  const customerPhone = formData.get("phone") as string;
-  const notes = (formData.get("notes") as string) || null;
+  const customerName = (formData.get("name") as string)?.trim();
+  const customerEmail = (formData.get("email") as string)?.trim();
+  const customerPhone = (formData.get("phone") as string)?.trim();
+  const notes = (formData.get("notes") as string)?.trim() || "";
 
+  // Validate required customer fields
   if (!customerName || !customerEmail || !customerPhone) {
     toast({
       title: "Missing Information",
@@ -59,7 +60,7 @@ const handleCheckoutSubmit = async (e: React.FormEvent) => {
     return;
   }
 
-  if (cartItems.length === 0) {
+  if (!cartItems || cartItems.length === 0) {
     toast({
       title: "Cart Empty",
       description: "Your cart is empty. Please add items before checking out.",
@@ -69,18 +70,43 @@ const handleCheckoutSubmit = async (e: React.FormEvent) => {
     return;
   }
 
+  const token = localStorage.getItem("token"); // Ensure you get the JWT here
+
+  if (!token) {
+    toast({
+      title: "Not Authenticated",
+      description: "Please log in to place an order.",
+      variant: "destructive",
+    });
+    setIsSubmittingOrder(false);
+    return;
+  }
+
   let allOrdersSuccessful = true;
 
   const orderPromises = cartItems.map(async (item) => {
+    // Ensure productId and quantity are valid
     const payload = {
-      productId: item.id,
-      quantity: item.quantity,
+      productId: item?.id || 0,
+      quantity: item?.quantity > 0 ? item.quantity : 1,
       name: customerName,
       email: customerEmail,
       phone: customerPhone,
       notes: notes,
       userId: user?.id || null,
     };
+
+    // Extra validation before sending
+    if (!payload.productId || !payload.quantity) {
+      allOrdersSuccessful = false;
+      console.error(`Invalid order data for item: ${item.name}`);
+      toast({
+        title: `Invalid Order Data`,
+        description: `Cannot place order for ${item.name}.`,
+        variant: "destructive",
+      });
+      return Promise.reject(new Error(`Invalid order data for ${item.name}`));
+    }
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/orders`, {
@@ -92,8 +118,8 @@ const handleCheckoutSubmit = async (e: React.FormEvent) => {
         body: JSON.stringify(payload),
       });
 
-      let result: any = {};
       const contentType = response.headers.get("content-type") || "";
+      let result: any = {};
 
       if (contentType.includes("application/json")) {
         result = await response.json();
