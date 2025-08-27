@@ -38,7 +38,6 @@ const Account = () => {
   }, [isAuthenticated, navigate, toast]);
 
   // Fetch user-specific orders
-// In your Account component, fix the API endpoint and headers
 useEffect(() => {
   const fetchUserOrders = async () => {
     if (!user?.id) {
@@ -47,27 +46,30 @@ useEffect(() => {
     }
     setOrdersLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/orders/me`, {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+     const res = await fetch(`${API_BASE_URL}/orders/me`, {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+});
+
+
 
       if (!res.ok) {
         throw new Error("Failed to fetch orders");
       }
 
       const data = await res.json();
-      setUserOrders(
-        data.map((order: any) => ({
-          id: order.id,
-          productName: order.productName || order.product_name, // Handle both cases
-          quantity: order.quantity,
-          totalAmount: order.totalAmount || order.total_amount,
-          status: order.status,
-          orderDate: order.orderDate || order.createdAt,
-        }))
-      );
+    setUserOrders(
+  data.map((order: any) => ({
+    id: order.id,
+    productName: order.productName || "N/A", // match backend key
+    quantity: order.quantity,
+    totalAmount: order.totalAmount || 0,    // match backend key
+    status: order.status,
+    orderDate: order.orderDate || order.createdAt, // fallback to createdAt
+  }))
+);
+
     } catch (error) {
       console.error("Error fetching user orders:", error);
       toast({
@@ -84,6 +86,7 @@ useEffect(() => {
     fetchUserOrders();
   }
 }, [isAuthenticated, user, toast]);
+
 
   const handleLogout = () => {
     logout(); // Call the logout function from AuthContext
