@@ -39,117 +39,120 @@ const Cart = () => {
       setShowCheckoutForm(true); // Show the checkout form modal
     }
   };
+const handleCheckoutSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsSubmittingOrder(true);
 
-  const handleCheckoutSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmittingOrder(true);
+  const formData = new FormData(e.currentTarget as HTMLFormElement);
+  const customerName = formData.get("name") as string;
+  const customerEmail = formData.get("email") as string;
+  const customerPhone = formData.get("phone") as string;
+  const notes = (formData.get("notes") as string) || null;
 
-    const formData = new FormData(e.currentTarget as HTMLFormElement);
-    const customerName = formData.get("name") as string;
-    const customerEmail = formData.get("email") as string;
-    const customerPhone = formData.get("phone") as string;
-    const notes = (formData.get("notes") as string) || null;
-
-    if (!customerName || !customerEmail || !customerPhone) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required customer details.",
-        variant: "destructive",
-      });
-      setIsSubmittingOrder(false);
-      return;
-    }
-
-    if (cartItems.length === 0) {
-      toast({
-        title: "Cart Empty",
-        description: "Your cart is empty. Please add items before checking out.",
-        variant: "destructive",
-      });
-      setIsSubmittingOrder(false);
-      return;
-    }
-
-    let allOrdersSuccessful = true;
-    const orderPromises = cartItems.map(async (item) => {
-     const payload = {
-  productId: item.id,
-  quantity: item.quantity,
-  name: customerName,
-  email: customerEmail,
-  phone: customerPhone,
-  notes: notes,
-  userId: user?.id || null, // attach logged-in user ID
-};
-
-
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/orders`, {
-  method: "POST",
-  headers: { 
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`
-  },
-  body: JSON.stringify(payload),
-});
-
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          allOrdersSuccessful = false;
-          console.error(`Failed to order ${item.name}:`, result.error || response.statusText);
-          toast({
-            title: `Order Failed for ${item.name}`,
-            description: result.error || "Please try again.",
-            variant: "destructive",
-          });
-          return Promise.reject(new Error(`Failed to order ${item.name}`)); // Reject to catch in Promise.all
-        }
-        return result; // Return success result
-      } catch (error) {
-        allOrdersSuccessful = false;
-        console.error(`Network error ordering ${item.name}:`, error);
-        toast({
-          title: `Network Error for ${item.name}`,
-          description: "Please check your connection and try again.",
-          variant: "destructive",
-        });
-        return Promise.reject(error);
-      }
+  if (!customerName || !customerEmail || !customerPhone) {
+    toast({
+      title: "Missing Information",
+      description: "Please fill in all required customer details.",
+      variant: "destructive",
     });
+    setIsSubmittingOrder(false);
+    return;
+  }
+
+  if (cartItems.length === 0) {
+    toast({
+      title: "Cart Empty",
+      description: "Your cart is empty. Please add items before checking out.",
+      variant: "destructive",
+    });
+    setIsSubmittingOrder(false);
+    return;
+  }
+
+  let allOrdersSuccessful = true;
+
+  const orderPromises = cartItems.map(async (item) => {
+    const payload = {
+      productId: item.id,
+      quantity: item.quantity,
+      name: customerName,
+      email: customerEmail,
+      phone: customerPhone,
+      notes: notes,
+      userId: user?.id || null,
+    };
 
     try {
-      await Promise.all(orderPromises); // Wait for all order promises to resolve/reject
+      const response = await fetch(`${API_BASE_URL}/api/orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-      if (allOrdersSuccessful) {
-        clearCart(); // Clear cart only if all orders went through
-        toast({
-          title: "Orders Placed Successfully! 🎉",
-          description: "Your order(s) have been received. We'll contact you shortly!",
-          duration: 5000,
-        });
-        setShowCheckoutForm(false); // Close the checkout form
-        navigate('/account'); // Navigate to account page or order history
+      let result: any = {};
+      const contentType = response.headers.get("content-type") || "";
+
+      if (contentType.includes("application/json")) {
+        result = await response.json();
       } else {
-        // This block will be hit if any promise rejected, and allOrdersSuccessful would be false
-        toast({
-          title: "Some Orders Failed",
-          description: "Some items in your cart could not be ordered. Please check the console for details.",
-          variant: "destructive",
-          duration: 7000,
-        });
+        const text = await response.text();
+        console.error("Expected JSON but got:", text);
+        throw new Error("Server returned non-JSON response");
       }
-    } catch (finalError) {
-      // This catch block handles the rejections from Promise.all
-      console.error("Overall order submission failed:", finalError);
-      // Specific toasts for individual item failures are already done in the map loop
-      // This catch is more for unexpected Promise.all rejections
-    } finally {
-      setIsSubmittingOrder(false);
-    }
-  };
 
+      if (!response.ok) {
+        allOrdersSuccessful = false;
+        console.error(`Failed to order ${item.name}:`, result.error || response.statusText);
+        toast({
+          title: `Order Failed for ${item.name}`,
+          description: result.error || "Please try again.",
+          variant: "destructive",
+        });
+        return Promise.reject(new Error(`Failed to order ${item.name}`));
+      }
+
+      return result;
+    } catch (error) {
+      allOrdersSuccessful = false;
+      console.error(`Network error ordering ${item.name}:`, error);
+      toast({
+        title: `Network Error for ${item.name}`,
+        description: "Please check your connection and try again.",
+        variant: "destructive",
+      });
+      return Promise.reject(error);
+    }
+  });
+
+  try {
+    await Promise.all(orderPromises);
+
+    if (allOrdersSuccessful) {
+      clearCart();
+      toast({
+        title: "Orders Placed Successfully! 🎉",
+        description: "Your order(s) have been received. We'll contact you shortly!",
+        duration: 5000,
+      });
+      setShowCheckoutForm(false);
+      navigate("/account");
+    } else {
+      toast({
+        title: "Some Orders Failed",
+        description: "Some items in your cart could not be ordered. Check console for details.",
+        variant: "destructive",
+        duration: 7000,
+      });
+    }
+  } catch (finalError) {
+    console.error("Overall order submission failed:", finalError);
+  } finally {
+    setIsSubmittingOrder(false);
+  }
+};
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-muted/30 py-6 sm:py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
