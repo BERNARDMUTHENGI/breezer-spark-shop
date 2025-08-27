@@ -43,117 +43,106 @@ const handleCheckoutSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   setIsSubmittingOrder(true);
 
-  const formData = new FormData(e.currentTarget as HTMLFormElement);
-  const customerName = (formData.get("name") as string)?.trim();
-  const customerEmail = (formData.get("email") as string)?.trim();
-  const customerPhone = (formData.get("phone") as string)?.trim();
-  const notes = (formData.get("notes") as string)?.trim() || "";
+  try {
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
+    const customerName = (formData.get("name") as string)?.trim();
+    const customerEmail = (formData.get("email") as string)?.trim();
+    const customerPhone = (formData.get("phone") as string)?.trim();
+    const notes = (formData.get("notes") as string)?.trim() || "";
 
-  // Validate required customer fields
-  if (!customerName || !customerEmail || !customerPhone) {
-    toast({
-      title: "Missing Information",
-      description: "Please fill in all required customer details.",
-      variant: "destructive",
-    });
-    setIsSubmittingOrder(false);
-    return;
-  }
-
-  if (!cartItems || cartItems.length === 0) {
-    toast({
-      title: "Cart Empty",
-      description: "Your cart is empty. Please add items before checking out.",
-      variant: "destructive",
-    });
-    setIsSubmittingOrder(false);
-    return;
-  }
-
-  const token = localStorage.getItem("token"); // Ensure you get the JWT here
-
-  if (!token) {
-    toast({
-      title: "Not Authenticated",
-      description: "Please log in to place an order.",
-      variant: "destructive",
-    });
-    setIsSubmittingOrder(false);
-    return;
-  }
-
-  let allOrdersSuccessful = true;
-
-  const orderPromises = cartItems.map(async (item) => {
-    // Ensure productId and quantity are valid
-    const payload = {
-      productId: item?.id || 0,
-      quantity: item?.quantity > 0 ? item.quantity : 1,
-      name: customerName,
-      email: customerEmail,
-      phone: customerPhone,
-      notes: notes,
-      userId: user?.id || null,
-    };
-
-    // Extra validation before sending
-    if (!payload.productId || !payload.quantity) {
-      allOrdersSuccessful = false;
-      console.error(`Invalid order data for item: ${item.name}`);
+    // Validate customer info
+    if (!customerName || !customerEmail || !customerPhone) {
       toast({
-        title: `Invalid Order Data`,
-        description: `Cannot place order for ${item.name}.`,
+        title: "Missing Information",
+        description: "Please fill in all required customer details.",
         variant: "destructive",
       });
-      return Promise.reject(new Error(`Invalid order data for ${item.name}`));
+      return;
     }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/orders`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
+    // Validate cart items
+    const validCartItems = cartItems.filter(item => item.id && item.quantity > 0);
+    if (validCartItems.length === 0) {
+      toast({
+        title: "Invalid Cart Items",
+        description: "Some items in your cart are invalid or empty.",
+        variant: "destructive",
       });
+      return;
+    }
 
-      const contentType = response.headers.get("content-type") || "";
-      let result: any = {};
+    // Get auth token
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast({
+        title: "Not Authenticated",
+        description: "Please log in to place an order.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-      if (contentType.includes("application/json")) {
-        result = await response.json();
-      } else {
-        const text = await response.text();
-        console.error("Expected JSON but got:", text);
-        throw new Error("Server returned non-JSON response");
-      }
+    let allOrdersSuccessful = true;
 
-      if (!response.ok) {
+    // Submit each valid cart item
+    const orderPromises = validCartItems.map(async item => {
+      const payload = {
+        productId: item.id,
+        quantity: item.quantity,
+        name: customerName,
+        email: customerEmail,
+        phone: customerPhone,
+        notes,
+        userId: user?.id || null,
+      };
+
+      console.log("Submitting order payload:", payload); // Logging payload
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/orders`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const contentType = response.headers.get("content-type") || "";
+        let result: any = {};
+
+        if (contentType.includes("application/json")) {
+          result = await response.json();
+        } else {
+          const text = await response.text();
+          console.error("Expected JSON but got:", text);
+          throw new Error("Server returned non-JSON response");
+        }
+
+        if (!response.ok) {
+          allOrdersSuccessful = false;
+          console.error(`Order failed for ${item.name}:`, result.error || response.statusText);
+          toast({
+            title: `Order Failed for ${item.name}`,
+            description: result.error || "Please try again.",
+            variant: "destructive",
+          });
+          return Promise.reject(new Error(`Failed to order ${item.name}`));
+        }
+
+        return result;
+      } catch (error) {
         allOrdersSuccessful = false;
-        console.error(`Failed to order ${item.name}:`, result.error || response.statusText);
+        console.error(`Network error ordering ${item.name}:`, error);
         toast({
-          title: `Order Failed for ${item.name}`,
-          description: result.error || "Please try again.",
+          title: `Network Error for ${item.name}`,
+          description: "Please check your connection and try again.",
           variant: "destructive",
         });
-        return Promise.reject(new Error(`Failed to order ${item.name}`));
+        return Promise.reject(error);
       }
+    });
 
-      return result;
-    } catch (error) {
-      allOrdersSuccessful = false;
-      console.error(`Network error ordering ${item.name}:`, error);
-      toast({
-        title: `Network Error for ${item.name}`,
-        description: "Please check your connection and try again.",
-        variant: "destructive",
-      });
-      return Promise.reject(error);
-    }
-  });
-
-  try {
     await Promise.all(orderPromises);
 
     if (allOrdersSuccessful) {
@@ -168,17 +157,18 @@ const handleCheckoutSubmit = async (e: React.FormEvent) => {
     } else {
       toast({
         title: "Some Orders Failed",
-        description: "Some items in your cart could not be ordered. Check console for details.",
+        description: "Some items could not be ordered. Check console for details.",
         variant: "destructive",
         duration: 7000,
       });
     }
-  } catch (finalError) {
-    console.error("Overall order submission failed:", finalError);
+  } catch (error) {
+    console.error("Overall order submission failed:", error);
   } finally {
     setIsSubmittingOrder(false);
   }
 };
+
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-muted/30 py-6 sm:py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
