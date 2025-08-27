@@ -37,40 +37,45 @@ const Account = () => {
     }
   }, [isAuthenticated, navigate, toast]);
 
-  // Fetch user-specific orders
+  /// Fetch user-specific orders
 useEffect(() => {
   const fetchUserOrders = async () => {
     if (!user?.id) {
       setOrdersLoading(false);
       return;
     }
+
     setOrdersLoading(true);
+
     try {
-   const res = await fetch(`${API_BASE_URL}/api/orders/me`, {
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-});
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("User not authenticated");
 
-
-
+      const res = await fetch(`${API_BASE_URL}/api/orders/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!res.ok) {
+        const text = await res.text(); // fallback to see response
+        console.error("Failed to fetch orders:", text);
         throw new Error("Failed to fetch orders");
       }
 
       const data = await res.json();
-    setUserOrders(
-  data.map((order: any) => ({
-    id: order.id,
-    productName: order.productName || "N/A", // match backend key
-    quantity: order.quantity,
-    totalAmount: order.totalAmount || 0,    // match backend key
-    status: order.status,
-    orderDate: order.orderDate || order.createdAt, // fallback to createdAt
-  }))
-);
 
+      // Map backend order data to frontend UserOrder interface
+      setUserOrders(
+        data.map((order: any) => ({
+          id: order.id,
+          productName: order.productName || order.product?.name || "N/A",
+          quantity: order.quantity || 1,
+          totalAmount: order.totalAmount || order.product?.price || 0,
+          status: order.status || "pending",
+          orderDate: order.orderDate || order.createdAt || new Date().toISOString(),
+        }))
+      );
     } catch (error) {
       console.error("Error fetching user orders:", error);
       toast({
