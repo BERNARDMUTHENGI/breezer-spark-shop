@@ -46,11 +46,12 @@ useEffect(() => {
     }
     setOrdersLoading(true);
     try {
-     const res = await fetch(`${API_BASE_URL}/orders/me`, {
+   const res = await fetch(`${API_BASE_URL}/api/orders/me`, {
   headers: {
     Authorization: `Bearer ${localStorage.getItem("token")}`,
   },
 });
+
 
 
 
