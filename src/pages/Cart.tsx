@@ -84,6 +84,7 @@ const handleCheckoutSubmit = async (e: React.FormEvent) => {
       userId: user?.id || null,
     };
 
+    // FIXED: Changed endpoint from /api/orders/me to /api/orders
     const response = await fetch(`${API_BASE_URL}/api/orders`, {
       method: "POST",
       headers: { 
