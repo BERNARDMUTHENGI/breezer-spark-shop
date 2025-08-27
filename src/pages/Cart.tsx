@@ -84,14 +84,15 @@ const Cart = () => {
 
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/orders/me`, {
+        const response = await fetch(`${API_BASE_URL}/api/orders`, {
   method: "POST",
   headers: { 
     "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}` // Add this line
+    "Authorization": `Bearer ${token}`
   },
   body: JSON.stringify(payload),
 });
+
 
         const result = await response.json();
 
