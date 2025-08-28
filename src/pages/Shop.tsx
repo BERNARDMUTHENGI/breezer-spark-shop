@@ -103,15 +103,26 @@ const Shop = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero */}
-      <section className="gradient-hero text-primary-foreground py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold mb-6">Electrical Equipment Shop</h1>
-          <p className="text-xl text-primary-foreground/90 max-w-3xl mx-auto">
-            Quality electrical equipment, generators, solar systems, and security solutions
-          </p>
-        </div>
-      </section>
+     {/* Hero */}
+<section 
+  className="text-primary-foreground py-16 relative h-70"
+  style={{
+    backgroundImage: "url('/shopbg.png')",
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat'
+  }}
+>
+  {/* Optional overlay for better text readability */}
+  <div className="absolute inset-0 bg-black/30"></div>
+  
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+    <h1 className="text-5xl font-bold mb-6">Electrical Equipment Shop</h1>
+    <p className="text-xl text-primary-foreground/90 max-w-3xl mx-auto">
+      Quality electrical equipment, generators, solar systems, and security solutions
+    </p>
+  </div>
+</section>
 
       {/* Filters */}
       <section className="py-8 bg-muted/30">

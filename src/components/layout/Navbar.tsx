@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Zap, ShoppingCart, User } from "lucide-react"; // Import ShoppingCart and User icons
+import { Menu, X, ShoppingCart, User } from "lucide-react"; 
 import { Button } from "@/components/ui/button";
-import { useCart } from "../../contexts/CartContext"; // Corrected to relative path
-import { useAuth } from "../../contexts/AuthContext"; // Corrected to relative path
+import { useCart } from "../../contexts/CartContext"; 
+import { useAuth } from "../../contexts/AuthContext"; 
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { cartItemCount } = useCart(); // Get cart item count from context
-  const { isAuthenticated } = useAuth(); // Get authentication status from context
+  const { cartItemCount } = useCart(); 
+  const { isAuthenticated } = useAuth(); 
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -19,7 +19,7 @@ export const Navbar = () => {
     { name: "Contact", href: "/contact" },
   ];
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path) => location.pathname === path;
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
@@ -27,12 +27,16 @@ export const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="bg-primary rounded-lg p-2">
-                <Zap className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold text-primary">
-                Breezer Electric $ Automation
-              </span>
+              {/* Adjusted size of the logo image */}
+              <img 
+                src="/logo.jpg" 
+                alt="Breezer Electric Logo" 
+                className="h-14 w-50 rounded-full object-cover mt-1" 
+              />
+              {/* Removed redundant text as the logo image contains the full name */}
+              {/* <span className="text-xl font-bold text-primary">
+                Breezer Electric & Automations
+              </span> */}
             </Link>
           </div>
 
@@ -51,9 +55,6 @@ export const Navbar = () => {
                 {item.name}
               </Link>
             ))}
-            {/* <Button variant="outline" asChild>
-              <Link to="/admin-login">Admin</Link>
-            </Button> */}
 
             {/* Cart Icon (Desktop) - Now links to /cart */}
             <Link to="/cart" className="relative p-2 rounded-full hover:bg-gray-100 transition-colors">
@@ -119,13 +120,6 @@ export const Navbar = () => {
                   {item.name}
                 </Link>
               ))}
-              {/* <Link
-                to="/admin-login"
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50"
-                onClick={() => setIsOpen(false)}
-              >
-                Admin
-              </Link> */}
             </div>
           </div>
         )}

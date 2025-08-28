@@ -19,37 +19,43 @@ import {
 const About = () => {
   const services = [
     {
-      icon: Zap,
+      // Updated to image path for Electrical Contracting
+      icon: "/contracting.jpg",
       title: "Electrical Contracting",
       description: "Complete electrical installations, wiring, and power distribution systems for residential, commercial, and industrial projects.",
       features: ["New installations", "Electrical upgrades", "Power distribution", "Commercial wiring"]
     },
     {
-      icon: Cpu,
+      // Updated to image path for Generator Installation & Maintenance
+      icon: "/generator.jpg",
       title: "Generator Installation & Maintenance",
       description: "Professional generator installation, commissioning, and ongoing maintenance services to ensure reliable backup power.",
       features: ["Generator installation", "Maintenance services", "Commissioning", "Emergency repairs"]
     },
     {
-      icon: Wrench,
+      // Updated to image path for Electrical Design
+      icon: "/design.jpg", // New image path
       title: "Electrical Design",
       description: "Professional electrical design services for optimal power distribution and system efficiency.",
       features: ["System design", "Load calculations", "Circuit planning", "Technical drawings"]
     },
     {
-      icon: Camera,
+      // Updated to image path for CCTV & Security Systems
+      icon: "/cctv.jpg",
       title: "CCTV & Security Systems",
       description: "Advanced security solutions including CCTV installation, access control, and alarm systems.",
       features: ["CCTV installation", "Access control", "Alarm systems", "Remote monitoring"]
     },
     {
-      icon: Sun,
+      // Updated to image path for Solar Energy Solutions
+      icon: "/solar.jpg",
       title: "Solar Energy Solutions",
       description: "Sustainable solar power systems designed and installed to reduce energy costs and environmental impact.",
       features: ["Solar panel installation", "Grid-tie systems", "Battery backup", "Energy audits"]
     },
     {
-      icon: Search,
+      // Updated to image path for Electrical Inspection & Repairs
+      icon: "/repair.jpg", // New image path
       title: "Electrical Inspection & Repairs",
       description: "Comprehensive electrical inspections, troubleshooting, and repair services to ensure safety and compliance.",
       features: ["Safety inspections", "Fault finding", "Emergency repairs", "Compliance testing"]
@@ -77,7 +83,10 @@ const About = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="gradient-hero text-primary-foreground py-16">
+      <section 
+        className="text-primary-foreground py-16 bg-cover bg-center" // Added bg-cover bg-center for image styling
+        style={{ backgroundImage: `url('/aboutb.png')` }} // Replaced gradient with image
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl font-bold mb-6">About Breezer Electric</h1>
           <p className="text-xl text-primary-foreground/90 max-w-3xl mx-auto">
@@ -164,14 +173,15 @@ const About = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((service, index) => (
-              <Card key={index} className="card-service h-full">
-                <CardHeader>
-                  <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <service.icon className="h-6 w-6 text-primary group-hover:text-primary-foreground" />
-                  </div>
+              <Card key={index} className="card-service h-full overflow-hidden">
+                {/* Image as background for the top part of the card with rounded top corners */}
+                <div 
+                  className="w-full h-32 bg-cover bg-center rounded-t-xl" 
+                  style={{ backgroundImage: `url(${service.icon})` }}
+                  aria-label={service.title} // Accessibility for image
+                ></div>
+                <CardContent className="p-6 space-y-4">
                   <CardTitle className="text-xl text-primary">{service.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
                   <p className="text-muted-foreground">{service.description}</p>
                   <ul className="space-y-2">
                     {service.features.map((feature, idx) => (

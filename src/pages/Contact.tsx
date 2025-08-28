@@ -94,7 +94,7 @@ const Contact = () => {
     {
       icon: Phone,
       title: "Phone",
-      detail: "+254 721 597 396",
+      detail: "0798836266",
       description: "Call us for immediate assistance"
     },
     {
@@ -352,7 +352,7 @@ const Contact = () => {
             <Button asChild className="btn-hero">
               <a href="tel:+254721597396">
                 <Phone className="h-4 w-4 mr-2" />
-                Call Now: +254 721 597 396
+                Call Now: 0798836266
               </a>
             </Button>
           </div>
