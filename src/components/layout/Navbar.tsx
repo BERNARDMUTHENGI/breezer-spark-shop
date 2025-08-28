@@ -31,7 +31,7 @@ export const Navbar = () => {
               <img 
                 src="/logo.png" 
                 alt="Breezer Electric Logo" 
-                className="h-14 w-14 rounded-full object-cover mb-1 mt-2" 
+                className="h-14 w-14 rounded-full object-cover mb-1 mt-2 bg-gray-600" 
               />
               {/* Removed redundant text as the logo image contains the full name */}
               <span className="text-xs font-bold text-primary">
