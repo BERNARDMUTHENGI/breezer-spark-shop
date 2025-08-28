@@ -31,12 +31,13 @@ export const Navbar = () => {
               <img 
                 src="/logo.jpg" 
                 alt="Breezer Electric Logo" 
-                className="h-14 w-50 rounded-full object-cover mt-1" 
+                className="h-14 w-14 rounded-full object-cover mb-1 mt-2" 
               />
               {/* Removed redundant text as the logo image contains the full name */}
-              {/* <span className="text-xl font-bold text-primary">
-                Breezer Electric & Automations
-              </span> */}
+              <span className="text-xs font-bold text-primary">
+                Breezer Electric & Automations <br />
+                Better services for self reliance
+              </span>
             </Link>
           </div>
 
