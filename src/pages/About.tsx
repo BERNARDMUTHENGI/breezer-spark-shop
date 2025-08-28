@@ -207,7 +207,7 @@ const About = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild className="btn-hero">
-              <Link to="/contact">Get Quote</Link>
+              <Link to="/contact">Contact Fundi Mtaani</Link>
             </Button>
             <Button variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
               <Link to="/portfolio">

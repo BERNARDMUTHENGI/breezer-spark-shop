@@ -252,7 +252,7 @@ const Portfolio = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild className="btn-hero">
-              <Link to="/contact">Get Your Quote</Link>
+              <Link to="/contact">Hear From us</Link>
             </Button>
             <Button variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
               <Link to="/about">
