@@ -35,8 +35,7 @@ export const Navbar = () => {
               />
               {/* Removed redundant text as the logo image contains the full name */}
               <span className="text-xs font-bold text-primary">
-                Breezer Electric & Automations <br />
-                Better services for self reliance
+                Breezer Electric & Automations 
               </span>
             </Link>
           </div>
