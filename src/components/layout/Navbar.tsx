@@ -29,7 +29,7 @@ export const Navbar = () => {
             <Link to="/" className="flex items-center space-x-2">
               {/* Adjusted size of the logo image */}
               <img 
-                src="/logo.jpg" 
+                src="/logo.png" 
                 alt="Breezer Electric Logo" 
                 className="h-14 w-14 rounded-full object-cover mb-1 mt-2" 
               />
