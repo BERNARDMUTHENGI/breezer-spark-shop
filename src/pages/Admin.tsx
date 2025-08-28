@@ -112,7 +112,7 @@ interface PortfolioProject {
     updatedAt?: string; // Optional
 }
 
-const API_BASE_URL = "https://breezer-electronics-5.onrender.com/api";
+const API_BASE_URL = "https://breezer-electronics-3.onrender.com/api";
 
 
 const Admin = () => {
@@ -177,38 +177,43 @@ const Admin = () => {
   };
 
 // Add this function to handle image uploads
-const handleImageUpload = async (file) => {
-  if (!file) return null;
-  
-  setIsUploading(true);
-  const formData = new FormData();
-  formData.append('image', file);
-  
-  try {
-    const response = await fetch(`${API_BASE_URL}/upload`, {
-      method: 'POST',
-      body: formData,
-    });
-    
-    if (!response.ok) {
-      throw new Error('Upload failed');
+ const handleImageUpload = async (file: File | null) => {
+    if (!file) return null;
+    setIsUploading(true);
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const data = await response.json();
+
+      // Ensure full URL
+      const fullUrl = data.imageUrl.startsWith("http")
+        ? data.imageUrl
+        : `${API_BASE_URL}${data.imageUrl}`;
+
+      setUploadedImageUrl(fullUrl);
+      setIsUploading(false);
+      return fullUrl;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      setIsUploading(false);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
+      return null;
     }
-    
-    const data = await response.json();
-    setUploadedImageUrl(data.imageUrl);
-    setIsUploading(false);
-    return data.imageUrl;
-  } catch (error) {
-    console.error('Error uploading image:', error);
-    setIsUploading(false);
-    toast({
-      title: "Upload Failed",
-      description: "Failed to upload image. Please try again.",
-      variant: "destructive",
-    });
-    return null;
-  }
-};
+  };
+
 
 
   // --- API Fetching Functions ---
@@ -1508,42 +1513,29 @@ const handleDeleteOrder = async (id: number) => {
               </div>
               {/* Thumbnail Upload (File + URL) */}
 <div>
-  <Label htmlFor="thumbnailUpload" className="text-sm font-medium text-gray-700 flex items-center">
-    <ImageIcon className="h-4 w-4 mr-2" />Thumbnail
-  </Label>
-  <div className="flex gap-2 items-center mt-1">
-    {/* Hidden File Input */}
-    <input
-      id="thumbnailUpload"
-      type="file"
-      accept="image/*"
-      className="hidden"
-      onChange={async (e) => {
-        const file = e.target.files?.[0];
-        if (file) {
-          const formData = new FormData();
-          formData.append("image", file);
-
-          try {
-           const res = await fetch(`${API_BASE_URL}/upload`, {
-              method: "POST",
-              body: formData,
-            });
-            const data = await res.json();
-            if (res.ok) {
-              // Put uploaded image URL into text field
-              const urlField = document.getElementById("thumbnailUrl") as HTMLInputElement;
-              if (urlField) urlField.value = `https://breezer-electronics-5.onrender.com${data.imageUrl}`;
-            } else {
-              alert(data.message || "Upload failed");
-            }
-          } catch (err) {
-            console.error("Upload error:", err);
-            alert("Upload failed, check console.");
-          }
+<Label htmlFor="thumbnailUpload" className="text-sm font-medium text-gray-700 flex items-center">
+  <ImageIcon className="h-4 w-4 mr-2" />Thumbnail
+</Label>
+<div className="flex gap-2 items-center mt-1">
+  {/* Hidden File Input */}
+  <input
+    id="thumbnailUpload"
+    type="file"
+    accept="image/*"
+    className="hidden"
+    onChange={async (e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        // Call the reusable upload function
+        const uploadedUrl = await handleImageUpload(file);
+        if (uploadedUrl) {
+          const urlField = document.getElementById("thumbnailUrl") as HTMLInputElement;
+          if (urlField) urlField.value = uploadedUrl; // Already full URL
         }
-      }}
-    />
+      }
+    }}
+  />
+    
     {/* Choose File Button */}
     <Button
       type="button"
@@ -1631,42 +1623,35 @@ const handleDeleteOrder = async (id: number) => {
               </div>
               {/* Thumbnail Upload (File + URL) */}
 <div>
-  <Label htmlFor="thumbnailUpload" className="text-sm font-medium text-gray-700 flex items-center">
-    <ImageIcon className="h-4 w-4 mr-2" />Thumbnail
-  </Label>
-  <div className="flex gap-2 items-center mt-1">
-    {/* Hidden File Input */}
-    <input
-      id="thumbnailUpload"
-      type="file"
-      accept="image/*"
-      className="hidden"
-      onChange={async (e) => {
-        const file = e.target.files?.[0];
-        if (file) {
-          const formData = new FormData();
-          formData.append("image", file);
-
-          try {
-            const res = await fetch(`${API_BASE_URL}/upload`, {
-              method: "POST",
-              body: formData,
-            });
-            const data = await res.json();
-            if (res.ok) {
-              // Put uploaded image URL into text field
-              const urlField = document.getElementById("thumbnailUrl") as HTMLInputElement;
-              if (urlField) urlField.value = `https://breezer-electronics-5.onrender.com${data.imageUrl}`;
-            } else {
-              alert(data.message || "Upload failed");
-            }
-          } catch (err) {
-            console.error("Upload error:", err);
-            alert("Upload failed, check console.");
+<Label htmlFor="thumbnailUpload" className="text-sm font-medium text-gray-700 flex items-center">
+  <ImageIcon className="h-4 w-4 mr-2" />Thumbnail
+</Label>
+<div className="flex gap-2 items-center mt-1">
+  {/* Hidden File Input */}
+  <input
+    id="thumbnailUpload"
+    type="file"
+    accept="image/*"
+    className="hidden"
+    onChange={async (e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        try {
+          // Use the reusable upload function
+          const uploadedUrl = await handleImageUpload(file);
+          if (uploadedUrl) {
+            // Set the uploaded URL in the text field
+            const urlField = document.getElementById("thumbnailUrl") as HTMLInputElement;
+            if (urlField) urlField.value = uploadedUrl; // Already full URL
           }
+        } catch (err) {
+          console.error("Upload error:", err);
+          alert("Upload failed, check console.");
         }
-      }}
-    />
+      }
+    }}
+  />
+    
     {/* Choose File Button */}
     <Button
       type="button"
@@ -1819,41 +1804,33 @@ const handleDeleteOrder = async (id: number) => {
              {/* Project Image Upload (File + URL) */}
 <div>
   <Label htmlFor="project-imageUpload" className="text-sm font-medium text-gray-700 flex items-center">
-    <Link2 className="h-4 w-4 mr-2" />Project Image *
-  </Label>
-  <div className="flex gap-2 items-center mt-1">
-    {/* Hidden File Input */}
-    <input
-      id="project-imageUpload"
-      type="file"
-      accept="image/*"
-      className="hidden"
-      onChange={async (e) => {
-        const file = e.target.files?.[0];
-        if (file) {
-          const formData = new FormData();
-          formData.append("image", file);
-
-          try {
-            const res = await fetch(`${API_BASE_URL}/upload`, {
-              method: "POST",
-              body: formData,
-            });
-            const data = await res.json();
-            if (res.ok) {
-              // Put uploaded image URL into text field
-              const urlField = document.getElementById("project-imageUrl") as HTMLInputElement;
-              if (urlField) urlField.value = `https://breezer-electronics-5.onrender.com${data.imageUrl}`;
-            } else {
-              alert(data.message || "Upload failed");
-            }
-          } catch (err) {
-            console.error("Upload error:", err);
-            alert("Upload failed, check console.");
+  <Link2 className="h-4 w-4 mr-2" />Project Image *
+</Label>
+<div className="flex gap-2 items-center mt-1">
+  {/* Hidden File Input */}
+  <input
+    id="project-imageUpload"
+    type="file"
+    accept="image/*"
+    className="hidden"
+    onChange={async (e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        try {
+          // Use reusable upload function
+          const uploadedUrl = await handleImageUpload(file);
+          if (uploadedUrl) {
+            // Set uploaded URL in input field
+            const urlField = document.getElementById("project-imageUrl") as HTMLInputElement;
+            if (urlField) urlField.value = uploadedUrl; // Already full URL
           }
+        } catch (err) {
+          console.error("Upload error:", err);
+          alert("Upload failed, check console.");
         }
-      }}
-    />
+      }
+    }}
+  />
     {/* Choose File Button */}
     <Button
       type="button"
@@ -1944,40 +1921,33 @@ const handleDeleteOrder = async (id: number) => {
             {/* Project Image Upload (File + URL) */}
 <div>
   <Label htmlFor="project-imageUpload" className="text-sm font-medium text-gray-700 flex items-center">
-    <Link2 className="h-4 w-4 mr-2" />Project Image *
-  </Label>
-  <div className="flex gap-2 items-center mt-1">
-    {/* Hidden File Input */}
-    <input
-      id="project-imageUpload"
-      type="file"
-      accept="image/*"
-      className="hidden"
-      onChange={async (e) => {
-        const file = e.target.files?.[0];
-        if (file) {
-          const formData = new FormData();
-          formData.append("image", file);
-
-          try {
-            const res = await fetch(`${API_BASE_URL}/upload`, {
-              method: "POST",
-              body: formData,
-            });
-            const data = await res.json();
-            if (res.ok) {
-              // Put uploaded image URL into text field
-              const urlField = document.getElementById("project-imageUrl") as HTMLInputElement;
-              if (urlField) urlField.value = `https://breezer-electronics-5.onrender.com${data.imageUrl}`;
-            } else {
-              alert(data.message || "Upload failed");
-            }
-          } catch (err) {
-            console.error("Upload error:", err);
-            alert("Upload failed, check console.");
+  <Link2 className="h-4 w-4 mr-2" />Project Image *
+</Label>
+<div className="flex gap-2 items-center mt-1">
+  {/* Hidden File Input */}
+  <input
+    id="project-imageUpload"
+    type="file"
+    accept="image/*"
+    className="hidden"
+    onChange={async (e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        try {
+          // Use reusable upload function
+          const uploadedUrl = await handleImageUpload(file);
+          if (uploadedUrl) {
+            // Set uploaded URL in input field
+            const urlField = document.getElementById("project-imageUrl") as HTMLInputElement;
+            if (urlField) urlField.value = uploadedUrl; // Already full URL
           }
+        } catch (err) {
+          console.error("Upload error:", err);
+          alert("Upload failed, check console.");
         }
-      }}
+      }
+    }}
+  
     />
     {/* Choose File Button */}
     <Button

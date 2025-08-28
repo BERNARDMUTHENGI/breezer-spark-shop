@@ -47,7 +47,7 @@ const Portfolio = () => {
         setLoading(true);
         
         // Fetch project types
-        const typesResponse = await fetch('https://breezer-electronics-5.onrender.com/api/portfolio/types');
+        const typesResponse = await fetch('https://breezer-electronics-3.onrender.com/api/portfolio/types');
         if (!typesResponse.ok) throw new Error('Failed to fetch project types');
         const typesData = await typesResponse.json();
         
@@ -65,7 +65,7 @@ const Portfolio = () => {
         ]);
 
         // Fetch projects
-        const projectsResponse = await fetch(`https://breezer-electronics-5.onrender.com/api/portfolio/projects?type=${selectedType}`);
+        const projectsResponse = await fetch(`https://breezer-electronics-3.onrender.com/api/portfolio/projects?type=${selectedType}`);
         if (!projectsResponse.ok) throw new Error('Failed to fetch projects');
         const projectsData = await projectsResponse.json();
         

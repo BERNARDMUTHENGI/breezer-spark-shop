@@ -40,7 +40,7 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('https://breezer-electronics-5.onrender.com/api/contacts', {
+      const response = await fetch('https://breezer-electronics-3.onrender.com/api/contacts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

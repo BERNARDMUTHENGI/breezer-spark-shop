@@ -149,7 +149,7 @@ const handleCheckoutSubmit = async (e: React.FormEvent) => {
       clearCart();
       toast({
         title: "Orders Placed Successfully! 🎉",
-        description: "Your order(s) have been received. We'll contact you shortly!",
+        description: "Your order has been received. We'll contact you shortly!",
         duration: 5000,
       });
       setShowCheckoutForm(false);

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext"; // Changed to alias path
 import { useToast } from "@/hooks/use-toast";
 
-const API_BASE_URL = "https://breezer-electronics-5.onrender.com"; // Your backend API URL
+const API_BASE_URL = "https://breezer-electronics-3.onrender.com"; // Your backend API URL
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
