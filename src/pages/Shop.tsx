@@ -105,7 +105,7 @@ const Shop = () => {
     <div className="min-h-screen">
      {/* Hero */}
 <section 
-  className="text-primary-foreground py-16 relative h-70"
+  className="text-primary-foreground py-16 relative h-80"
   style={{
     backgroundImage: "url('/shopbg.png')",
     backgroundSize: 'cover',
@@ -198,17 +198,27 @@ const Shop = () => {
                     <CardTitle className="text-xl text-primary">{p.name}</CardTitle>
                     <div className="text-2xl font-bold text-secondary">{formatKES(p.price)}</div>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-muted-foreground line-clamp-3">{p.description}</p>
-                    <Button
-                      onClick={() => handleAddToCartClick(p)}
-                      disabled={p.stock <= 0}
-                      className="w-full"
-                    >
-                      <ShoppingCart className="w-4 h-4 mr-2" />
-                      {p.stock > 0 ? "Add to Cart" : "Out of Stock"}
-                    </Button>
-                  </CardContent>
+                 <CardContent className="space-y-4">
+  <p className="text-muted-foreground line-clamp-3">{p.description}</p>
+  <div className="flex flex-col gap-2">
+    <Button
+      onClick={() => handleAddToCartClick(p)}
+      disabled={p.stock <= 0}
+      className="w-full"
+    >
+      <ShoppingCart className="w-4 h-4 mr-2" />
+      {p.stock > 0 ? "Add to Cart" : "Out of Stock"}
+    </Button>
+    <Button
+      onClick={() => window.open(`https://wa.me/254798836266?text=Hello! I want to order: ${p.name} (${formatKES(p.price)})`, '_blank')}
+      disabled={p.stock <= 0}
+      className="w-full bg-green-600 hover:bg-green-700 text-white"
+    >
+      <i className="fab fa-whatsapp w-4 h-4 mr-2"></i>
+      {p.stock > 0 ? "Order via WhatsApp" : "Out of Stock"}
+    </Button>
+  </div>
+</CardContent>
                 </Card>
               ))}
             </div>

@@ -130,7 +130,10 @@ const Contact = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="gradient-hero text-primary-foreground py-16">
+      <section
+      className="text-primary-foreground py-16 bg-cover bg-center h-80" 
+      style={{ backgroundImage: `url('/contact.png')` }} 
+    >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl font-bold mb-6">Contact Us</h1>
           <p className="text-xl text-primary-foreground/90 max-w-3xl mx-auto">
@@ -139,25 +142,7 @@ const Contact = () => {
         </div>
       </section>
 
-      {/* Contact Information */}
-      <section className="py-16 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {contactInfo.map((info, index) => (
-              <Card key={index} className="card-professional text-center">
-                <CardContent className="p-6 space-y-4">
-                  <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
-                    <info.icon className="h-8 w-8 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-primary">{info.title}</h3>
-                  <p className="font-medium text-foreground">{info.detail}</p>
-                  <p className="text-sm text-muted-foreground">{info.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+     
 
       {/* Contact Form and Info */}
       <section className="py-16">
@@ -337,6 +322,26 @@ const Contact = () => {
                 </CardContent>
               </Card>
             </div>
+          </div>
+        </div>
+      </section>
+
+       {/* Contact Information */}
+      <section className="py-16 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {contactInfo.map((info, index) => (
+              <Card key={index} className="card-professional text-center">
+                <CardContent className="p-6 space-y-4">
+                  <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
+                    <info.icon className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-primary">{info.title}</h3>
+                  <p className="font-medium text-foreground text-sm">{info.detail}</p>
+                  <p className="text-sm text-muted-foreground">{info.description}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>

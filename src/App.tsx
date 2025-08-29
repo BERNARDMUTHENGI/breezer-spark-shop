@@ -20,6 +20,7 @@ import Cart from "./pages/Cart";
 import Register from "./pages/Register";
 import AdminLogin from "./pages/AdminLogin";
 import ProtectedAdminRoute from "./components/routes/ProtectedAdminRoute";
+import { FaWhatsapp } from "react-icons/fa";
 
 const queryClient = new QueryClient();
 
@@ -31,7 +32,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <CartProvider>
-            <div className="min-h-screen flex flex-col">
+            <div className="min-h-screen flex flex-col relative">
               <Navbar />
               <main className="flex-1">
                 <Routes>
@@ -63,6 +64,16 @@ const App = () => (
                 </Routes>
               </main>
               <Footer />
+
+              {/* Floating WhatsApp Button (Bottom Right) */}
+              <a
+                href="https://wa.me/254798836266"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="fixed bottom-4 right-4 bg-green-500 text-white p-3 rounded-full shadow-lg hover:bg-green-600 transition duration-300 z-50"
+              >
+                <FaWhatsapp size={28} />
+              </a>
             </div>
           </CartProvider>
         </AuthProvider>

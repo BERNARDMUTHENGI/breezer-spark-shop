@@ -61,7 +61,7 @@ const Home = () => {
   ];
 
   const phoneNumber = "254798836266"; // Your phone number for WhatsApp link
-  const tiktokUsername = "your_tiktok_username"; // Replace with your actual TikTok username
+  const tiktokUsername = "breezer_electric"; // Replace with your actual TikTok username
 
   return (
     <div className="min-h-screen">
