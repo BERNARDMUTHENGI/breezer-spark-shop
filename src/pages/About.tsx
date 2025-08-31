@@ -127,7 +127,7 @@ const About = () => {
               <p className="text-lg text-muted-foreground mb-6">
                 
               </p>To be the lead design and build firm throughout east and central Africa. We are committed to leading the industry in safety, customer satisfaction and workforce training. We will meet and exceed customer expectations through our full line of electrical design, build and maintenance services and robust technology, completing projects on time and on budget. <br />
-              <h3 className="text-2xl font-semibold text-primary mb-6">Our Vision</h3>
+              <h3 className="text-2xl font-semibold text-primary mt-4">Our Vision</h3>
               <p className="text-lg text-muted-foreground">
                 To be the leading provider of affordable and quality electrical services in Kenya.
               </p>
