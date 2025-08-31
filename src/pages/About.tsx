@@ -100,11 +100,12 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <h2 className="text-4xl font-bold text-primary">Professional Excellence Since Day One</h2>
+              <h2 className="text-4xl font-bold text-primary">About us</h2>
               <p className="text-lg text-muted-foreground">
-                Breezer Electric & Automation Limited is a leading electrical contracting company 
-                specializing in comprehensive electrical solutions for residential, commercial, and 
-                industrial clients across Kenya.
+               Breezer Electric & Automation Limited is a registered company in Kenya with Energy and Petroleum Regulatory Authority (EPRA) board of license and with National Construction Authority (NCA) with a Class One.
+               A combination of astule electrical problem solving skills, a passion for customer service and a can do attitude in exceeding customer expectations, offering a personalised service we believe that honesty, integrity and commitment is our key to success.
+              During the early years and with organic growth, business reputation spread throughout within a very short time we have established a good clientele and have built our trust in them.
+              We empower our people to: Intervene when they witness any risk behavior, lead by example, identify and manage hazards associated with the activities for which they are responsible.
               </p>
               <p className="text-lg text-muted-foreground">
                 Our team of certified professionals is committed to delivering quality, value, and 
@@ -124,13 +125,11 @@ const About = () => {
             <div className="bg-muted/50 rounded-2xl p-8">
               <h3 className="text-2xl font-semibold text-primary mb-6">Our Mission</h3>
               <p className="text-lg text-muted-foreground mb-6">
-                To provide innovative, reliable, and sustainable electrical solutions that power 
-                progress and enhance the quality of life for our clients and communities.
-              </p>
+                
+              </p>To be the lead design and build firm throughout east and central Africa. We are committed to leading the industry in safety, customer satisfaction and workforce training. We will meet and exceed customer expectations through our full line of electrical design, build and maintenance services and robust technology, completing projects on time and on budget. 
               <h3 className="text-2xl font-semibold text-primary mb-6">Our Vision</h3>
               <p className="text-lg text-muted-foreground">
-                To be the leading electrical contracting company in Kenya, recognized for our 
-                technical excellence, innovation, and commitment to customer satisfaction.
+                To be the leading provider of affordable and quality electrical services in Kenya.
               </p>
             </div>
           </div>
