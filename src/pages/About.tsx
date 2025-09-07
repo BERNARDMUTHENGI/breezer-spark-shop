@@ -208,7 +208,7 @@ const About = () => {
             <Button asChild className="btn-hero">
               <Link to="/contact">Contact Fundi Mtaani</Link>
             </Button>
-            <Button variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+            <Button variant="outline" className="btn-primary-outline" asChild>
               <Link to="/portfolio">
                 View Projects <ArrowRight className="ml-2 h-4 w-4" />
               </Link>

@@ -197,7 +197,7 @@ const Home = () => {
             <Button asChild className="btn-hero">
               <Link to="/contact">Fundi Mtaani</Link>
             </Button>
-            <Button variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+            <Button variant="outline" className="btn-primary-outline "asChild >
               <Link to="/portfolio">View Our Work</Link>
             </Button>
           </div>
