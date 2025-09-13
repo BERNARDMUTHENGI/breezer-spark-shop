@@ -73,7 +73,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-8 fade-in-up">
             <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-              Professional Electrical KIMANI
+              Professional Electrical 
               <span className="block text-secondary">Solutions & Automation</span>
             </h1>
             <p className="text-xl md:text-2xl text-primary-foreground/90 max-w-3xl mx-auto">
