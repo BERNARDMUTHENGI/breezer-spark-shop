@@ -1739,7 +1739,7 @@ const handleDeleteOrder = async (id: number) => {
       console.log("FormData entry:", pair[0], pair[1]);
     }
 
-    const res = await fetch(`${API_BASE_URL}/api/upload-multiple`, {
+    const res = await fetch(`${API_BASE_URL}/upload-multiple`, {
       method: "POST",
       body: formData
     });
@@ -1792,7 +1792,7 @@ const handleDeleteOrder = async (id: number) => {
                 try {
                   const formData = new FormData();
                   Array.from(files).forEach(file => formData.append("images", file));
-                  const res = await fetch(`${API_BASE_URL}/api/upload-multiple`, {
+                  const res = await fetch(`${API_BASE_URL}/upload-multiple`, {
                     method: "POST",
                     body: formData
                   });
