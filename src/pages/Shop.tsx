@@ -103,7 +103,8 @@ const Shop = () => {
   const [loading, setLoading] = useState(true);
 
   // fetch categories + products
-  useEffect(() => {
+ // fetch categories + products
+useEffect(() => {
   const run = async () => {
     try {
       // Fetch categories and products concurrently
@@ -136,6 +137,14 @@ const Shop = () => {
             : `${API}${img.imageUrl}`
         })) || []
       }));
+
+      // DEBUG: log all products with full URLs
+      console.log("Shop: Products with full URLs", finalProductsWithFullUrls);
+      finalProductsWithFullUrls.forEach((p: Product) => {
+        console.log(`Product: ${p.name}`);
+        console.log("Thumbnail:", p.thumbnailUrl);
+        console.log("Images:", p.images.map(img => img.imageUrl));
+      });
 
       setProducts(finalProductsWithFullUrls);
 
