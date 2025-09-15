@@ -104,33 +104,56 @@ const Shop = () => {
 
   // fetch categories + products
   useEffect(() => {
-    const run = async () => {
-      try {
-        const [cRes, pRes] = await Promise.all([
-          fetch(`${API}/api/categories`),
-          fetch(`${API}/api/products`)
-        ]);
+  const run = async () => {
+    try {
+      // Fetch categories and products concurrently
+      const [cRes, pRes] = await Promise.all([
+        fetch(`${API}/api/categories`),
+        fetch(`${API}/api/products`)
+      ]);
 
-        const cats = await cRes.json();
-        const prod = await pRes.json();
+      const cats = await cRes.json();
+      const prod = await pRes.json();
 
-        setCategories(cats);
+      setCategories(cats);
 
-        // Ensure we're taking the 'data' array from the response object
-        const productsData = Array.isArray(prod) ? prod : prod.data;
-        const finalProductsArray = Array.isArray(productsData) ? productsData : [];
+      // Handle case where response might be an array or object with data
+      const productsData = Array.isArray(prod) ? prod : prod.data;
+      const finalProductsArray = Array.isArray(productsData) ? productsData : [];
 
-        setProducts(finalProductsArray);
+      // Map thumbnail and multiple images to full URLs
+      const finalProductsWithFullUrls = finalProductsArray.map((p: Product) => ({
+        ...p,
+        thumbnailUrl: p.thumbnailUrl
+          ? p.thumbnailUrl.startsWith('http')
+            ? p.thumbnailUrl
+            : `${API}${p.thumbnailUrl}`
+          : null,
+        images: p.images?.map(img => ({
+          ...img,
+          imageUrl: img.imageUrl.startsWith('http')
+            ? img.imageUrl
+            : `${API}${img.imageUrl}`
+        })) || []
+      }));
 
-      } catch (e: any) {
-        console.error("Shop: Error fetching data:", e);
-        toast({ title: "Failed to load shop", description: `Please try again. ${e.message}`, variant: "destructive" });
-      } finally {
-        setLoading(false);
-      }
-    };
-    run();
-  }, [toast]);
+      setProducts(finalProductsWithFullUrls);
+
+    } catch (e: any) {
+      console.error("Shop: Error fetching data:", e);
+      toast({
+        title: "Failed to load shop",
+        description: `Please try again. ${e.message}`,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  run();
+}, [toast]);
+
 
   const filteredProducts = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
