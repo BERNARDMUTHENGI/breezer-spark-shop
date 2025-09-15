@@ -112,7 +112,7 @@ interface PortfolioProject {
     updatedAt?: string; // Optional
 }
 
-const API_BASE_URL = "https://breezer-electronics-3.onrender.com/";
+const API_BASE_URL = "https://breezer-electronics-3.onrender.com/api";
 
 
 const Admin = () => {
@@ -1727,7 +1727,7 @@ const handleDeleteOrder = async (id: number) => {
   if (!file) return;
 
   // 1️⃣ Log the API endpoint and file info
-  console.log("Uploading to:", `${API_BASE_URL}/api/upload-multiple`);
+  console.log("Uploading to:", `${API_BASE_URL}/upload-multiple`);
   console.log("File selected:", file);
 
   try {
