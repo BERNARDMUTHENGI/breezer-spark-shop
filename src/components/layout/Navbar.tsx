@@ -17,6 +17,9 @@ export const Navbar = () => {
     { name: "Shop", href: "/shop" },
     { name: "Portfolio", href: "/portfolio" },
     { name: "Contact", href: "/contact" },
+    { name: "Blog", href: "/blog" },
+    //  { name: "BlogAdmin", href: "/blogadmin" },
+
   ];
 
   const isActive = (path) => location.pathname === path;

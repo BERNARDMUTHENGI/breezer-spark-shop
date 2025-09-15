@@ -10,6 +10,8 @@ import About from "./pages/About";
 import Shop from "./pages/Shop";
 import Contact from "./pages/Contact";
 import Portfolio from "./pages/Portfolio";
+import Blog from './pages/Blog'
+import BlogPost from './pages/BlogPost'
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import { CartProvider } from "./contexts/CartContext";
@@ -19,6 +21,7 @@ import Account from "./pages/Account";
 import Cart from "./pages/Cart";
 import Register from "./pages/Register";
 import AdminLogin from "./pages/AdminLogin";
+import BlogAdminDashboard from "./pages/BlogAdminDashboard";
 import ProtectedAdminRoute from "./components/routes/ProtectedAdminRoute";
 import { FaWhatsapp } from "react-icons/fa";
 
@@ -39,8 +42,12 @@ const App = () => (
                   <Route path="/" element={<Home />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/shop" element={<Shop />} />
+
+                  <Route path="/blogadmin" element={<BlogAdminDashboard/>} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/portfolio" element={<Portfolio />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:slug" element={<BlogPost />} />
 
                   {/* Admin routes */}
                   <Route path="/admin-login" element={<AdminLogin />} />
