@@ -108,37 +108,33 @@ const Shop = () => {
 useEffect(() => {
   const run = async () => {
     try {
-      // Fetch categories and products concurrently
       const [cRes, pRes] = await Promise.all([
         fetch(`${API}/api/categories`),
         fetch(`${API}/api/products`)
       ]);
 
       const cats = await cRes.json();
-      const prod = await pRes.json(); // <-- now returns an array directly
+      const prod = await pRes.json();
 
       setCategories(cats);
 
-      // Ensure we have an array
-      const finalProductsArray = Array.isArray(prod) ? prod : [];
+      // Adapt to backend response: either array or object with .data
+      const productsData = Array.isArray(prod) ? prod : prod.data || [];
+      const finalProductsArray = Array.isArray(productsData) ? productsData : [];
 
-      // Map thumbnail and multiple images to full URLs
       const finalProductsWithFullUrls = finalProductsArray.map((p: Product) => ({
         ...p,
         thumbnailUrl: p.thumbnailUrl
           ? p.thumbnailUrl.startsWith('http')
             ? p.thumbnailUrl
             : `${API}${p.thumbnailUrl}`
-          : null,
+          : (p.images?.[0]?.imageUrl ? `${API}${p.images[0].imageUrl}` : null), // fallback
         images: p.images?.map(img => ({
           ...img,
-          imageUrl: img.imageUrl.startsWith('http')
-            ? img.imageUrl
-            : `${API}${img.imageUrl}`
+          imageUrl: img.imageUrl.startsWith('http') ? img.imageUrl : `${API}${img.imageUrl}`
         })) || []
       }));
 
-      // DEBUG: log all products with full URLs
       console.log("Shop: Products with full URLs", finalProductsWithFullUrls);
       finalProductsWithFullUrls.forEach((p: Product) => {
         console.log(`Product: ${p.name}`);
@@ -147,14 +143,8 @@ useEffect(() => {
       });
 
       setProducts(finalProductsWithFullUrls);
-
     } catch (e: any) {
       console.error("Shop: Error fetching data:", e);
-      toast({
-        title: "Failed to load shop",
-        description: `Please try again. ${e.message}`,
-        variant: "destructive"
-      });
     } finally {
       setLoading(false);
     }
