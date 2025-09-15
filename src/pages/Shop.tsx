@@ -104,6 +104,7 @@ const Shop = () => {
 
   // fetch categories + products
  // fetch categories + products
+// fetch categories + products
 useEffect(() => {
   const run = async () => {
     try {
@@ -114,13 +115,12 @@ useEffect(() => {
       ]);
 
       const cats = await cRes.json();
-      const prod = await pRes.json();
+      const prod = await pRes.json(); // <-- now returns an array directly
 
       setCategories(cats);
 
-      // Handle case where response might be an array or object with data
-      const productsData = Array.isArray(prod) ? prod : prod.data;
-      const finalProductsArray = Array.isArray(productsData) ? productsData : [];
+      // Ensure we have an array
+      const finalProductsArray = Array.isArray(prod) ? prod : [];
 
       // Map thumbnail and multiple images to full URLs
       const finalProductsWithFullUrls = finalProductsArray.map((p: Product) => ({
@@ -162,7 +162,6 @@ useEffect(() => {
 
   run();
 }, [toast]);
-
 
   const filteredProducts = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
