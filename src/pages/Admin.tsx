@@ -112,7 +112,7 @@ interface PortfolioProject {
     updatedAt?: string; // Optional
 }
 
-const API_BASE_URL = "https://breezer-electronics-3.onrender.com/api";
+const API_BASE_URL = "https://breezer-electronics-3.onrender.com/";
 
 
 const Admin = () => {
