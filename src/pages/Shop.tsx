@@ -252,10 +252,12 @@ const Shop = () => {
                   <CardHeader className="space-y-3">
                     {/* UPDATED: Replaced thumbnail with image carousel */}
                     <ProductImageCarousel
-                      images={
-                        p.images?.length > 0 
-                          ? p.images.map(img => img.imageUrl) 
-                          : (p.thumbnailUrl ? [p.thumbnailUrl] : [])
+                       images={
+                        p.images && p.images.length > 0
+                          ? p.images.map(img => img.imageUrl) // Use uploaded images if available
+                          : p.thumbnailUrl
+                          ? [p.thumbnailUrl] // Fallback to thumbnail
+                          : ['https://placehold.co/176x176/e0e0e0/000000?text=NoImage'] // Default placeholder
                       }
                     />
 
