@@ -185,7 +185,7 @@ const Admin = () => {
     formData.append("image", file);
 
     try {
-      const response = await fetch(`${API_BASE_URL.replace(/\/$/, '')}/upload`, {
+      const response = await fetch(`${API_BASE_URL}/upload`, {
         method: "POST",
         body: formData,
       });
