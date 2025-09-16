@@ -1507,172 +1507,39 @@ const handleDeleteOrder = async (id: number) => {
         </div>
       </div>
 
-      {/* Add Product Modal */}
-      {isAddingProduct && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl mx-auto my-auto">
-            <h3 className="text-2xl font-bold text-primary mb-6">Add New Product</h3>
-
-            <form onSubmit={handleAddProduct} className="space-y-5">
-              <div>
-                <Label htmlFor="name" className="text-sm font-medium text-gray-700 flex items-center"><Package className="h-4 w-4 mr-2" />Product Name *</Label>
-                <Input id="name" name="name" required className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
-              </div>
-              <div>
-                <Label htmlFor="description" className="text-sm font-medium text-gray-700 flex items-center"><Info className="h-4 w-4 mr-2" />Description</Label>
-                <Textarea id="description" name="description" className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
-              </div>
-              <div>
-                <Label htmlFor="categoryId" className="text-sm font-medium text-gray-700 flex items-center"><Package className="h-4 w-4 mr-2" />Category *</Label>
-                <select
-                  id="categoryId"
-                  name="categoryId"
-                  required
-                  className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <option value="">Select category</option>
-                  {categories.map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <Label htmlFor="price" className="text-sm font-medium text-gray-700 flex items-center"><DollarSign className="h-4 w-4 mr-2" />Price *</Label>
-                <Input id="price" name="price" type="number" step="0.01" min="0" placeholder="0.00" required className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
-              </div>
-              <div>
-                <Label htmlFor="sku" className="text-sm font-medium text-gray-700 flex items-center"><Hash className="h-4 w-4 mr-2" />SKU</Label>
-                <Input id="sku" name="sku" className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
-              </div>
-              {/* Thumbnail Upload (File + URL) */}
-<div>
-<Label htmlFor="thumbnailUpload" className="text-sm font-medium text-gray-700 flex items-center">
-  <ImageIcon className="h-4 w-4 mr-2" />Thumbnail
-</Label>
-<div className="flex gap-2 items-center mt-1">
-  {/* Hidden File Input */}
-  <input
-    id="thumbnailUpload"
-    type="file"
-    accept="image/*"
-    className="hidden"
-    onChange={async (e) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        // Call the reusable upload function
-        const uploadedUrl = await handleImageUpload(file);
-        if (uploadedUrl) {
-          const urlField = document.getElementById("thumbnailUrl") as HTMLInputElement;
-          if (urlField) urlField.value = uploadedUrl; // Already full URL
-        }
-      }
-    }}
-  />
-    
-    {/* Choose File Button */}
-    <Button
-      type="button"
-      variant="outline"
-      onClick={() => document.getElementById("thumbnailUpload")?.click()}
-    >
-      Choose File
-    </Button>
-
-    {/* Manual URL Entry */}
-    <Input
-      id="thumbnailUrl"
-      name="thumbnailUrl"
-      type="url"
-      placeholder="https://example.com/image.jpg"
-      className="flex-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
-    />
-  </div>
-</div>
-  {/* Extra Images Upload */}
-        <div>
-          <Label htmlFor="imagesUpload" className="text-sm font-medium text-gray-700 flex items-center">
-            <ImageIcon className="h-4 w-4 mr-2" />Additional Images
-          </Label>
-          <input
-            id="imagesUpload"
-            type="file"
-            name="images"
-            accept="image/*"
-            multiple
-            className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer"
-          />
-        </div>
-
-              <div>
-                <Label htmlFor="stock" className="text-sm font-medium text-gray-700 flex items-center"><Package className="h-4 w-4 mr-2" />Stock Quantity *</Label>
-                <Input id="stock" name="stock" type="number" min="0" required className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Input id="isActive" name="isActive" type="checkbox" className="h-4 w-4" defaultChecked={true} />
-                <Label htmlFor="isActive" className="text-sm font-medium text-gray-700 flex items-center"><ToggleLeft className="h-4 w-4 mr-2" />Active</Label>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button type="submit" className="flex-1 py-2.5 rounded-lg text-lg font-semibold bg-green-600 hover:bg-green-700 transition-colors">
-                  Add Product
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1 py-2.5 rounded-lg text-lg font-semibold border-gray-300 hover:bg-gray-100"
-                  onClick={() => setIsAddingProduct(false)}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-
-
-      {/* Edit Product Modal */}
-{isEditingProduct && currentProduct && (
+   {/* Add Product Modal */}
+{/* Add Product Modal */}
+{isAddingProduct && (
   <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
     <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl mx-auto my-auto">
-      <h3 className="text-2xl font-bold text-primary mb-6">Edit Product</h3>
+      <h3 className="text-2xl font-bold text-primary mb-6">Add New Product</h3>
 
-      <form onSubmit={handleEditProduct} className="space-y-5">
+      <form onSubmit={handleAddProduct} className="space-y-5">
+        {/* Product Name */}
         <div>
-          <Label htmlFor="edit-name" className="text-sm font-medium text-gray-700 flex items-center">
+          <Label htmlFor="name" className="text-sm font-medium text-gray-700 flex items-center">
             <Package className="h-4 w-4 mr-2" />Product Name *
           </Label>
-          <Input
-            id="edit-name"
-            name="name"
-            required
-            defaultValue={currentProduct.name}
-            className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
-          />
+          <Input id="name" name="name" required className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
         </div>
 
+        {/* Description */}
         <div>
-          <Label htmlFor="edit-description" className="text-sm font-medium text-gray-700 flex items-center">
+          <Label htmlFor="description" className="text-sm font-medium text-gray-700 flex items-center">
             <Info className="h-4 w-4 mr-2" />Description
           </Label>
-          <Textarea
-            id="edit-description"
-            name="description"
-            defaultValue={currentProduct.description || ''}
-            className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
-          />
+          <Textarea id="description" name="description" className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
         </div>
 
+        {/* Category */}
         <div>
-          <Label htmlFor="edit-categoryId" className="text-sm font-medium text-gray-700 flex items-center">
+          <Label htmlFor="categoryId" className="text-sm font-medium text-gray-700 flex items-center">
             <Package className="h-4 w-4 mr-2" />Category *
           </Label>
           <select
-            id="edit-categoryId"
+            id="categoryId"
             name="categoryId"
             required
-            defaultValue={currentProduct.category?.id || ''}
             className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <option value="">Select category</option>
@@ -1682,33 +1549,20 @@ const handleDeleteOrder = async (id: number) => {
           </select>
         </div>
 
+        {/* Price */}
         <div>
-          <Label htmlFor="edit-price" className="text-sm font-medium text-gray-700 flex items-center">
+          <Label htmlFor="price" className="text-sm font-medium text-gray-700 flex items-center">
             <DollarSign className="h-4 w-4 mr-2" />Price *
           </Label>
-          <Input
-            id="edit-price"
-            name="price"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0.00"
-            required
-            defaultValue={currentProduct.price}
-            className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
-          />
+          <Input id="price" name="price" type="number" step="0.01" min="0" placeholder="0.00" required className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
         </div>
 
+        {/* SKU */}
         <div>
-          <Label htmlFor="edit-sku" className="text-sm font-medium text-gray-700 flex items-center">
+          <Label htmlFor="sku" className="text-sm font-medium text-gray-700 flex items-center">
             <Hash className="h-4 w-4 mr-2" />SKU
           </Label>
-          <Input
-            id="edit-sku"
-            name="sku"
-            defaultValue={currentProduct.sku || ''}
-            className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
-          />
+          <Input id="sku" name="sku" className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
         </div>
 
         {/* Thumbnail Upload */}
@@ -1722,43 +1576,16 @@ const handleDeleteOrder = async (id: number) => {
               type="file"
               accept="image/*"
               className="hidden"
-            onChange={async (e) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
-
-  // 1️⃣ Log the API endpoint and file info
-  console.log("Uploading to:", `${API_BASE_URL}/upload-multiple`);
-  console.log("File selected:", file);
-
-  try {
-    const formData = new FormData();
-    formData.append("images", file);
-
-    // 2️⃣ Log FormData before sending (optional, to see keys)
-    for (const pair of formData.entries()) {
-      console.log("FormData entry:", pair[0], pair[1]);
-    }
-
-    const res = await fetch(`${API_BASE_URL}/upload-multiple`, {
-      method: "POST",
-      body: formData
-    });
-
-    const data = await res.json();
-    if (res.ok && data.images?.length > 0) {
-      const urlField = document.getElementById("project-imageUrl") as HTMLInputElement;
-      if (urlField) urlField.value = data.images[0];
-      console.log("Upload successful, URL:", data.images[0]);
-    } else {
-      console.error("Upload failed:", data);
-      alert("Upload failed, check console.");
-    }
-  } catch (err) {
-    console.error("Upload error:", err);
-    alert("Upload failed, check console.");
-  }
-}}
-
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const uploadedUrl = await handleImageUpload(file);
+                  if (uploadedUrl) {
+                    const urlField = document.getElementById("thumbnailUrl") as HTMLInputElement;
+                    if (urlField) urlField.value = uploadedUrl;
+                  }
+                }
+              }}
             />
             <Button type="button" variant="outline" onClick={() => document.getElementById("thumbnailUpload")?.click()}>
               Choose File
@@ -1769,18 +1596,17 @@ const handleDeleteOrder = async (id: number) => {
               type="url"
               placeholder="https://example.com/image.jpg"
               className="flex-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
-              defaultValue={currentProduct.thumbnailUrl || ''}
             />
           </div>
         </div>
 
-        {/* Additional Images Upload */}
+        {/* Extra Images Upload */}
         <div>
-          <Label htmlFor="edit-imagesUpload" className="text-sm font-medium text-gray-700 flex items-center">
+          <Label htmlFor="imagesUpload" className="text-sm font-medium text-gray-700 flex items-center">
             <ImageIcon className="h-4 w-4 mr-2" />Additional Images
           </Label>
           <input
-            id="edit-imagesUpload"
+            id="imagesUpload"
             type="file"
             name="images"
             accept="image/*"
@@ -1788,65 +1614,70 @@ const handleDeleteOrder = async (id: number) => {
             className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer"
             onChange={async (e) => {
               const files = e.target.files;
-              if (files && files.length > 0) {
-                try {
-                  const formData = new FormData();
-                  Array.from(files).forEach(file => formData.append("images", file));
-                  const res = await fetch(`${API_BASE_URL}/upload-multiple`, {
-                    method: "POST",
-                    body: formData
-                  });
-                  const data = await res.json();
-                  if (res.ok && data.images) {
-                    // Save the uploaded image URLs somewhere, e.g., hidden input
-                    const extraImagesField = document.getElementById("extraImages") as HTMLInputElement;
-                    if (extraImagesField) extraImagesField.value = data.images.join(",");
-                  } else {
-                    console.error("Additional images upload failed:", data);
-                    alert("Upload failed, check console.");
+              if (!files || files.length === 0) return;
+
+              try {
+                const formData = new FormData();
+                Array.from(files).forEach(file => formData.append("images", file));
+
+                const res = await fetch(`${API_BASE_URL}/upload-multiple`, {
+                  method: "POST",
+                  body: formData,
+                });
+                const data = await res.json();
+
+                if (res.ok && data.images) {
+                  const form = (e.target as HTMLInputElement).closest("form") as HTMLFormElement;
+                  if (!form) return;
+
+                  let extraImagesField = form.querySelector<HTMLInputElement>("#extraImages");
+                  if (!extraImagesField) {
+                    extraImagesField = document.createElement("input");
+                    extraImagesField.type = "hidden";
+                    extraImagesField.id = "extraImages";
+                    extraImagesField.name = "extraImages";
+                    form.appendChild(extraImagesField);
                   }
-                } catch (err) {
-                  console.error("Additional images upload error:", err);
+
+                  extraImagesField.value = data.images.join(",");
+                } else {
+                  console.error("Additional images upload failed:", data);
                   alert("Upload failed, check console.");
                 }
+              } catch (err) {
+                console.error("Additional images upload error:", err);
+                alert("Upload failed, check console.");
               }
             }}
           />
-          {/* Hidden input to hold uploaded images URLs */}
-          <input type="hidden" id="extraImages" name="extraImages" defaultValue={currentProduct.images?.map(img => img.imageUrl).join(",") || ""} />
         </div>
 
+        {/* Stock */}
         <div>
-          <Label htmlFor="edit-stock" className="text-sm font-medium text-gray-700 flex items-center">
+          <Label htmlFor="stock" className="text-sm font-medium text-gray-700 flex items-center">
             <Package className="h-4 w-4 mr-2" />Stock Quantity *
           </Label>
-          <Input
-            id="edit-stock"
-            name="stock"
-            type="number"
-            min="0"
-            required
-            defaultValue={currentProduct.stock}
-            className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
-          />
+          <Input id="stock" name="stock" type="number" min="0" required className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
         </div>
 
+        {/* Active Toggle */}
         <div className="flex items-center space-x-2">
-          <Input id="edit-isActive" name="isActive" type="checkbox" className="h-4 w-4" defaultChecked={currentProduct.isActive} />
-          <Label htmlFor="edit-isActive" className="text-sm font-medium text-gray-700 flex items-center">
+          <Input id="isActive" name="isActive" type="checkbox" className="h-4 w-4" defaultChecked={true} />
+          <Label htmlFor="isActive" className="text-sm font-medium text-gray-700 flex items-center">
             <ToggleLeft className="h-4 w-4 mr-2" />Active
           </Label>
         </div>
 
+        {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 pt-4">
-          <Button type="submit" className="flex-1 py-2.5 rounded-lg text-lg font-semibold bg-blue-600 hover:bg-blue-700 transition-colors">
-            Save Changes
+          <Button type="submit" className="flex-1 py-2.5 rounded-lg text-lg font-semibold bg-green-600 hover:bg-green-700 transition-colors">
+            Add Product
           </Button>
           <Button
             type="button"
             variant="outline"
             className="flex-1 py-2.5 rounded-lg text-lg font-semibold border-gray-300 hover:bg-gray-100"
-            onClick={() => { setIsEditingProduct(false); setCurrentProduct(null); }}
+            onClick={() => setIsAddingProduct(false)}
           >
             Cancel
           </Button>
@@ -1856,6 +1687,173 @@ const handleDeleteOrder = async (id: number) => {
   </div>
 )}
 
+{/* Edit Product Modal */}
+{isEditingProduct && currentProduct && (
+  <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+    <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl mx-auto my-auto">
+      <h3 className="text-2xl font-bold text-primary mb-6">Edit Product</h3>
+
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          try {
+            const form = e.currentTarget as HTMLFormElement;
+
+            const name = (form.elements.namedItem("name") as HTMLInputElement).value;
+            const description = (form.elements.namedItem("description") as HTMLTextAreaElement).value;
+            const price = Number((form.elements.namedItem("price") as HTMLInputElement).value);
+            const sku = (form.elements.namedItem("sku") as HTMLInputElement).value;
+            const categoryId = (form.elements.namedItem("categoryId") as HTMLSelectElement).value || null;
+            const thumbnailUrl = (form.elements.namedItem("thumbnailUrl") as HTMLInputElement).value;
+            const isActive = (form.elements.namedItem("isActive") as HTMLInputElement).checked;
+            const stock = Number((form.elements.namedItem("stock") as HTMLInputElement).value);
+
+            const extraImagesStr = (form.elements.namedItem("extraImages") as HTMLInputElement).value;
+            const bodyImages = extraImagesStr ? extraImagesStr.split(",") : [];
+
+            const payload = {
+              name, description, price, sku, categoryId,
+              thumbnailUrl, bodyImages, stock, isActive
+            };
+
+            const res = await fetch(`${API_BASE_URL}/api/admin/products/${currentProduct.id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || "Update failed");
+
+            console.log("Product updated:", data);
+            setIsEditingProduct(false);
+            setCurrentProduct(null);
+            // Optionally refresh your product list here
+          } catch (err) {
+            console.error("Error updating product:", err);
+            alert(err.message || "Update failed, check console.");
+          }
+        }}
+        className="space-y-5"
+      >
+        {/* Name */}
+        <div>
+          <Label htmlFor="edit-name" className="text-sm font-medium text-gray-700 flex items-center">
+            <Package className="h-4 w-4 mr-2" />Product Name *
+          </Label>
+          <Input id="edit-name" name="name" required defaultValue={currentProduct.name} className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"/>
+        </div>
+
+        {/* Description */}
+        <div>
+          <Label htmlFor="edit-description" className="text-sm font-medium text-gray-700 flex items-center">
+            <Info className="h-4 w-4 mr-2" />Description
+          </Label>
+          <Textarea id="edit-description" name="description" defaultValue={currentProduct.description || ''} className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"/>
+        </div>
+
+        {/* Category */}
+        <div>
+          <Label htmlFor="edit-categoryId" className="text-sm font-medium text-gray-700 flex items-center">
+            <Package className="h-4 w-4 mr-2" />Category *
+          </Label>
+          <select id="edit-categoryId" name="categoryId" required defaultValue={currentProduct.category?.id || ''} className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+            <option value="">Select category</option>
+            {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+          </select>
+        </div>
+
+        {/* Price */}
+        <div>
+          <Label htmlFor="edit-price" className="text-sm font-medium text-gray-700 flex items-center">
+            <DollarSign className="h-4 w-4 mr-2" />Price *
+          </Label>
+          <Input id="edit-price" name="price" type="number" step="0.01" min="0" placeholder="0.00" required defaultValue={currentProduct.price} className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"/>
+        </div>
+
+        {/* SKU */}
+        <div>
+          <Label htmlFor="edit-sku" className="text-sm font-medium text-gray-700 flex items-center">
+            <Hash className="h-4 w-4 mr-2" />SKU
+          </Label>
+          <Input id="edit-sku" name="sku" defaultValue={currentProduct.sku || ''} className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"/>
+        </div>
+
+        {/* Thumbnail Upload */}
+        <div>
+          <Label htmlFor="thumbnailUpload" className="text-sm font-medium text-gray-700 flex items-center">
+            <ImageIcon className="h-4 w-4 mr-2" />Thumbnail
+          </Label>
+          <div className="flex gap-2 items-center mt-1">
+            <input id="thumbnailUpload" type="file" accept="image/*" className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0]; if(!file) return;
+                try {
+                  const formData = new FormData(); formData.append("images", file);
+                  const res = await fetch(`${API_BASE_URL}/upload-multiple`, { method:"POST", body:formData });
+                  const data = await res.json();
+                  if(res.ok && data.images?.length > 0) {
+                    const urlField = document.getElementById("thumbnailUrl") as HTMLInputElement;
+                    if(urlField) urlField.value = data.images[0];
+                  } else { alert("Upload failed"); }
+                } catch(err) { console.error(err); alert("Upload failed"); }
+              }}
+            />
+            <Button type="button" variant="outline" onClick={() => document.getElementById("thumbnailUpload")?.click()}>Choose File</Button>
+            <Input id="thumbnailUrl" name="thumbnailUrl" type="url" placeholder="https://example.com/image.jpg" className="flex-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" defaultValue={currentProduct.thumbnailUrl || ''}/>
+          </div>
+        </div>
+
+        {/* Additional Images */}
+        <div>
+          <Label htmlFor="edit-imagesUpload" className="text-sm font-medium text-gray-700 flex items-center">
+            <ImageIcon className="h-4 w-4 mr-2" />Additional Images
+          </Label>
+          <input id="edit-imagesUpload" type="file" name="images" accept="image/*" multiple className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer"
+            onChange={async (e) => {
+              const files = e.target.files; if(!files?.length) return;
+              try {
+                const formData = new FormData();
+                Array.from(files).forEach(file => formData.append("images", file));
+                const res = await fetch(`${API_BASE_URL}/upload-multiple`, { method:"POST", body:formData });
+                const data = await res.json();
+                if(res.ok && data.images) {
+                  const extraImagesField = document.getElementById("extraImages") as HTMLInputElement;
+                  if(extraImagesField) extraImagesField.value = data.images.join(",");
+                } else { alert("Upload failed"); }
+              } catch(err){ console.error(err); alert("Upload failed"); }
+            }}
+          />
+          <input type="hidden" id="extraImages" name="extraImages" defaultValue={currentProduct.images?.map(img => img.imageUrl).join(",") || ""}/>
+        </div>
+
+        {/* Stock */}
+        <div>
+          <Label htmlFor="edit-stock" className="text-sm font-medium text-gray-700 flex items-center">
+            <Package className="h-4 w-4 mr-2" />Stock Quantity *
+          </Label>
+          <Input id="edit-stock" name="stock" type="number" min="0" required defaultValue={currentProduct.stock} className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"/>
+        </div>
+
+        {/* Active toggle */}
+        <div className="flex items-center space-x-2">
+          <Input id="edit-isActive" name="isActive" type="checkbox" className="h-4 w-4" defaultChecked={currentProduct.isActive}/>
+          <Label htmlFor="edit-isActive" className="text-sm font-medium text-gray-700 flex items-center">
+            <ToggleLeft className="h-4 w-4 mr-2" />Active
+          </Label>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          <Button type="submit" className="flex-1 py-2.5 rounded-lg text-lg font-semibold bg-blue-600 hover:bg-blue-700 transition-colors">Save Changes</Button>
+          <Button type="button" variant="outline" className="flex-1 py-2.5 rounded-lg text-lg font-semibold border-gray-300 hover:bg-gray-100"
+            onClick={() => { setIsEditingProduct(false); setCurrentProduct(null); }}
+          >Cancel</Button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
 
       {/* Add Category Modal */}
       {isAddingCategory && (
