@@ -1,3 +1,4 @@
+// --- Imports stay exactly the same ---
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,8 +11,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 type Category = { id: number; name: string; slug: string };
-
-// UPDATED: Product interface includes images array
 type Product = {
   id: number;
   name: string;
@@ -22,58 +21,62 @@ type Product = {
   stock: number;
   isActive: boolean;
   category: { id: number; name: string; slug: string } | null;
-  images: { id: number; imageUrl: string; sortOrder: number }[]; // Added images array
+  images: { id?: number; imageUrl: string; sortOrder?: number }[];
 };
 
-// Image Carousel Component - FIXED ARROW VISIBILITY
+// --- Image Carousel stays the same ---
+// --- Updated ProductImageCarousel component ---
 const ProductImageCarousel = ({ images }: { images: string[] }) => {
   const [index, setIndex] = useState(0);
-
-  const prev = () => setIndex((i) => (i === 0 ? images.length - 1 : i - 1));
-  const next = () => setIndex((i) => (i === images.length - 1 ? 0 : i + 1));
-
-  if (!images || images.length === 0) {
+  
+  // Filter out any empty or invalid image URLs
+  const validImages = useMemo(() => {
+    return images.filter(img => img && img !== 'null' && img !== 'undefined' && img.trim() !== '');
+  }, [images]);
+  
+  const prev = () => setIndex((i) => (i === 0 ? validImages.length - 1 : i - 1));
+  const next = () => setIndex((i) => (i === validImages.length - 1 ? 0 : i + 1));
+  
+  // If no valid images, show placeholder
+  if (!validImages || validImages.length === 0) {
     return (
       <div className="w-full h-44 bg-muted flex items-center justify-center">
-        <span className="text-muted-foreground">No image</span>
+        <span className="text-muted-foreground">No image available</span>
       </div>
     );
   }
-
+  
   return (
     <div className="relative w-full h-44">
-      <img
-        src={images[index]}
-        alt={`Product image ${index + 1}`}
+      <img 
+        src={validImages[index]} 
+        alt={`Product image ${index + 1}`} 
         className="w-full h-44 object-cover rounded-md"
-        onError={(e) => (e.currentTarget.src = 'https://placehold.co/176x176/e0e0e0/000000?text=NoImage')}
+        onError={(e) => {
+          e.currentTarget.src = 'https://placehold.co/176x176/e0e0e0/000000?text=ImageError';
+        }} 
       />
-
-      {images.length > 0 && (
+      {validImages.length > 1 && (
         <>
-          <button
-            onClick={prev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/80 text-white rounded-full p-1 hover:bg-black transition-all z-10"
+          <button 
+            onClick={prev} 
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/80 text-white rounded-full p-1 hover:bg-black transition-all z-10" 
             style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <button
-            onClick={next}
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/80 text-white rounded-full p-1 hover:bg-black transition-all z-10"
+          <button 
+            onClick={next} 
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/80 text-white rounded-full p-1 hover:bg-black transition-all z-10" 
             style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
             <ChevronRight className="w-4 h-4" />
           </button>
-          
-          {/* Image indicators */}
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1 z-10">
-            {images.map((_, i) => (
-              <div
-                key={i}
-                className={`h-2 w-2 rounded-full ${
-                  i === index ? 'bg-white' : 'bg-white/50'
-                }`}
+            {validImages.map((_, i) => (
+              <div 
+                key={i} 
+                className={`h-2 w-2 rounded-full ${i === index ? 'bg-white' : 'bg-white/50'}`} 
               />
             ))}
           </div>
@@ -85,27 +88,51 @@ const ProductImageCarousel = ({ images }: { images: string[] }) => {
 
 const API = import.meta.env.VITE_API_URL || "https://breezer-electronics-3.onrender.com";
 
-// Helper to normalize product images
+// --- PATCHED normalize function ---
 const normalizeProductImages = (products: Product[], apiBase: string) => {
   return products.map(p => {
-    const images = (p.images || []).map(img => {
-      // img might be { imageUrl } or just a string
-      const url = typeof img === 'string' ? img : img.imageUrl;
-      return {
-        ...img,
-        imageUrl: url.startsWith('http') ? url : `${apiBase}${url}`
-      };
-    });
+    // --- Handle images array ---
+    let images: { imageUrl: string }[] = [];
+    if (Array.isArray(p.images)) {
+      images = p.images.map(img => {
+        let url = '';
+        if (typeof img === 'string') url = img;
+        else if (typeof img === 'object' && img !== null) {
+          url = img.imageUrl || img.imageUrl || '';
+        }
+        return {
+          imageUrl: url.startsWith('http') ? url : `${apiBase}${url.startsWith('/') ? url : '/' + url}`
+        };
+      });
+    }
 
-    // Ensure thumbnailUrl exists; fallback to first image if needed
-    let thumbnailUrl = p.thumbnailUrl
-      ? (p.thumbnailUrl.startsWith('http') ? p.thumbnailUrl : `${apiBase}${p.thumbnailUrl}`)
-      : images[0]?.imageUrl || null;
+    // --- Ensure thumbnail ---
+    let thumbnailUrl = '';
+    if (p.thumbnailUrl) {
+      thumbnailUrl = p.thumbnailUrl.startsWith('http')
+        ? p.thumbnailUrl
+        : `${apiBase}${p.thumbnailUrl.startsWith('/') ? p.thumbnailUrl : '/' + p.thumbnailUrl}`;
+    } else if (images.length > 0) {
+      thumbnailUrl = images[0].imageUrl;
+    } else {
+      thumbnailUrl = 'https://placehold.co/176x176/e0e0e0/000000?text=NoImage';
+    }
+
+    // --- Map backend category fields to frontend structure ---
+    const category = (p as any).category_slug || (p as any).category_id
+      ? {
+          id: (p as any).category_id || 0,
+          name: (p as any).category_name || 'Unknown',
+          slug: (p as any).category_slug || 'unknown'
+        }
+      : null;
 
     return {
       ...p,
       images,
-      thumbnailUrl
+      thumbnailUrl,
+      isActive: Boolean((p as any).is_active ?? p.isActive), // support backend is_active
+      category,
     };
   });
 };
@@ -113,88 +140,76 @@ const normalizeProductImages = (products: Product[], apiBase: string) => {
 
 const Shop = () => {
   const { toast } = useToast();
-  const { addToCart, cartItemCount } = useCart();
+  const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // UI state
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [showProductAddedPopup, setShowProductAddedPopup] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-
-  // Data state
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-// fetch categories + products
-
 useEffect(() => {
   const run = async () => {
     try {
-      // Fetch categories and products concurrently
+      setLoading(true);
+      console.log("Fetching data from:", API);
+      
       const [cRes, pRes] = await Promise.all([
         fetch(`${API}/api/categories`),
         fetch(`${API}/api/products`)
       ]);
-
+      
       const cats = await cRes.json();
       const prod = await pRes.json();
-
-      setCategories(cats);
-
-      // Handle case where response might be an array or object with data
-      const productsData = Array.isArray(prod) ? prod : prod.data || [];
-      const finalProductsArray = Array.isArray(productsData) ? productsData : [];
-
-      // Normalize images and thumbnails
-      const normalizedProducts = normalizeProductImages(finalProductsArray, API);
-
-      // DEBUG: log normalized products
-      console.log("Shop: Normalized Products", normalizedProducts);
-      normalizedProducts.forEach(p => {
-        console.log(`Product: ${p.name}`);
-        console.log("Thumbnail:", p.thumbnailUrl);
-        console.log("Images:", p.images.map(img => img.imageUrl));
-      });
-
-      setProducts(normalizedProducts);
-
+      
+      console.log("Categories response:", cats);
+      console.log("Products response:", prod);
+      
+      setCategories(cats || []);
+      
+      // Handle different response structures
+      let finalProductsArray: Product[] = [];
+      if (Array.isArray(prod)) {
+        finalProductsArray = prod;
+      } else if (prod && Array.isArray(prod.data)) {
+        finalProductsArray = prod.data;
+      } else if (prod && Array.isArray(prod.products)) {
+        finalProductsArray = prod.products;
+      }
+      
+      console.log("Final products array:", finalProductsArray);
+      
+      const normalized = normalizeProductImages(finalProductsArray, API);
+      console.log("Normalized products:", normalized);
+      setProducts(normalized);
     } catch (e: any) {
       console.error("Shop: Error fetching data:", e);
-      toast({
-        title: "Failed to load shop",
-        description: `Please try again. ${e.message}`,
-        variant: "destructive"
+      toast({ 
+        title: "Failed to load shop", 
+        description: `Please try again. ${e.message}`, 
+        variant: "destructive" 
       });
     } finally {
       setLoading(false);
     }
   };
-
   run();
 }, [toast]);
-
 
   const filteredProducts = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     return products.filter(p => {
-      const matchesSearch =
-        !q ||
-        p.name.toLowerCase().includes(q) ||
-        (p.description?.toLowerCase().includes(q));
-      const matchesCategory =
-        selectedCategory === "all" ||
-        p.category?.slug === selectedCategory;
+      const matchesSearch = !q || p.name.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q);
+      const matchesCategory = selectedCategory === "all" || p.category?.slug === selectedCategory;
       return matchesSearch && matchesCategory && p.isActive;
     });
   }, [products, searchTerm, selectedCategory]);
 
-  const formatKES = (n: number) =>
-    new Intl.NumberFormat("en-KE", { style: "currency", currency: "KES", maximumFractionDigits: 0 }).format(n);
+  const formatKES = (n: number) => new Intl.NumberFormat("en-KE", { style: "currency", currency: "KES", maximumFractionDigits: 0 }).format(n);
 
-  // Handle adding product to cart
   const handleAddToCartClick = (product: Product) => {
     addToCart(product, 1);
     setShowProductAddedPopup(true);
@@ -273,15 +288,16 @@ useEffect(() => {
                 <Card key={p.id} className="card-professional overflow-hidden">
                   <CardHeader className="space-y-3">
                     {/* UPDATED: Replaced thumbnail with image carousel */}
-                    <ProductImageCarousel
-                       images={
-                        p.images && p.images.length > 0
-                          ? p.images.map(img => img.imageUrl) // Use uploaded images if available
-                          : p.thumbnailUrl
-                          ? [p.thumbnailUrl] // Fallback to thumbnail
-                          : ['https://placehold.co/176x176/e0e0e0/000000?text=NoImage'] // Default placeholder
-                      }
-                    />
+                   
+<ProductImageCarousel
+  images={
+    p.images && p.images.length > 0
+      ? p.images.map(img => img.imageUrl).filter(url => url && url.trim() !== '')
+      : p.thumbnailUrl
+      ? [p.thumbnailUrl]
+      : []
+  }
+/>
 
                     <div className="flex items-center justify-between">
                       <Badge variant={p.stock > 0 ? "default" : "secondary"}>
