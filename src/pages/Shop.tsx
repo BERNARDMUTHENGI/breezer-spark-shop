@@ -88,13 +88,17 @@ const API = import.meta.env.VITE_API_URL || "https://breezer-electronics-3.onren
 // Helper to normalize product images
 const normalizeProductImages = (products: Product[], apiBase: string) => {
   return products.map(p => {
-    const images = (p.images || []).map(img => ({
-      ...img,
-      imageUrl: img.imageUrl.startsWith('http') ? img.imageUrl : `${apiBase}${img.imageUrl}`
-    }));
+    const images = (p.images || []).map(img => {
+      // img might be { imageUrl } or just a string
+      const url = typeof img === 'string' ? img : img.imageUrl;
+      return {
+        ...img,
+        imageUrl: url.startsWith('http') ? url : `${apiBase}${url}`
+      };
+    });
 
     // Ensure thumbnailUrl exists; fallback to first image if needed
-    const thumbnailUrl = p.thumbnailUrl
+    let thumbnailUrl = p.thumbnailUrl
       ? (p.thumbnailUrl.startsWith('http') ? p.thumbnailUrl : `${apiBase}${p.thumbnailUrl}`)
       : images[0]?.imageUrl || null;
 
@@ -105,7 +109,6 @@ const normalizeProductImages = (products: Product[], apiBase: string) => {
     };
   });
 };
-
 
 
 const Shop = () => {
