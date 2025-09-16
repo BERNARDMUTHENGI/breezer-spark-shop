@@ -85,6 +85,29 @@ const ProductImageCarousel = ({ images }: { images: string[] }) => {
 
 const API = import.meta.env.VITE_API_URL || "https://breezer-electronics-3.onrender.com";
 
+// Helper to normalize product images
+const normalizeProductImages = (products: Product[], apiBase: string) => {
+  return products.map(p => {
+    const images = (p.images || []).map(img => ({
+      ...img,
+      imageUrl: img.imageUrl.startsWith('http') ? img.imageUrl : `${apiBase}${img.imageUrl}`
+    }));
+
+    // Ensure thumbnailUrl exists; fallback to first image if needed
+    const thumbnailUrl = p.thumbnailUrl
+      ? (p.thumbnailUrl.startsWith('http') ? p.thumbnailUrl : `${apiBase}${p.thumbnailUrl}`)
+      : images[0]?.imageUrl || null;
+
+    return {
+      ...p,
+      images,
+      thumbnailUrl
+    };
+  });
+};
+
+
+
 const Shop = () => {
   const { toast } = useToast();
   const { addToCart, cartItemCount } = useCart();
@@ -102,12 +125,12 @@ const Shop = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // fetch categories + products
- // fetch categories + products
 // fetch categories + products
+
 useEffect(() => {
   const run = async () => {
     try {
+      // Fetch categories and products concurrently
       const [cRes, pRes] = await Promise.all([
         fetch(`${API}/api/categories`),
         fetch(`${API}/api/products`)
@@ -118,33 +141,30 @@ useEffect(() => {
 
       setCategories(cats);
 
-      // Adapt to backend response: either array or object with .data
+      // Handle case where response might be an array or object with data
       const productsData = Array.isArray(prod) ? prod : prod.data || [];
       const finalProductsArray = Array.isArray(productsData) ? productsData : [];
 
-      const finalProductsWithFullUrls = finalProductsArray.map((p: Product) => ({
-        ...p,
-        thumbnailUrl: p.thumbnailUrl
-          ? p.thumbnailUrl.startsWith('http')
-            ? p.thumbnailUrl
-            : `${API}${p.thumbnailUrl}`
-          : (p.images?.[0]?.imageUrl ? `${API}${p.images[0].imageUrl}` : null), // fallback
-        images: p.images?.map(img => ({
-          ...img,
-          imageUrl: img.imageUrl.startsWith('http') ? img.imageUrl : `${API}${img.imageUrl}`
-        })) || []
-      }));
+      // Normalize images and thumbnails
+      const normalizedProducts = normalizeProductImages(finalProductsArray, API);
 
-      console.log("Shop: Products with full URLs", finalProductsWithFullUrls);
-      finalProductsWithFullUrls.forEach((p: Product) => {
+      // DEBUG: log normalized products
+      console.log("Shop: Normalized Products", normalizedProducts);
+      normalizedProducts.forEach(p => {
         console.log(`Product: ${p.name}`);
         console.log("Thumbnail:", p.thumbnailUrl);
         console.log("Images:", p.images.map(img => img.imageUrl));
       });
 
-      setProducts(finalProductsWithFullUrls);
+      setProducts(normalizedProducts);
+
     } catch (e: any) {
       console.error("Shop: Error fetching data:", e);
+      toast({
+        title: "Failed to load shop",
+        description: `Please try again. ${e.message}`,
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -152,6 +172,7 @@ useEffect(() => {
 
   run();
 }, [toast]);
+
 
   const filteredProducts = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
