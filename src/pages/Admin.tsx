@@ -452,52 +452,37 @@ const handleEditProduct = async (e: React.FormEvent) => {
 
   const formData = new FormData(e.target as HTMLFormElement);
 
-  // Handle new images
+  // Append new images from file input
   const imageFiles = (formData.getAll("images") as File[]).filter(f => f instanceof File);
-  const uploadedImageUrls: string[] = [];
-  for (const file of imageFiles) {
-    const uploadedUrl = await handleImageUpload(file);
-    if (uploadedUrl) uploadedImageUrls.push(uploadedUrl);
-  }
+  imageFiles.forEach(file => formData.append("images", file));
 
-  // Preserve existing images + add new ones
-  const mergedImages = [
-    ...(currentProduct.images || []),
-    ...uploadedImageUrls.map((url, index) => ({
-      imageUrl: url,
-      sortOrder: (currentProduct.images?.length || 0) + index,
-    })),
-  ];
-
-  const updatedProductData = {
-    name: formData.get("name") as string,
-    description: (formData.get("description") as string) || null,
-    price: parseFloat(formData.get("price") as string),
-    sku: (formData.get("sku") as string) || null,
-    thumbnailUrl: (formData.get("thumbnailUrl") as string) || null,
-    stock: parseInt(formData.get("stock") as string),
-    isActive: formData.get("isActive") === "on",
-    categoryId: formData.get("categoryId") ? parseInt(formData.get("categoryId") as string) : null,
-    images: mergedImages,
-  };
+  // Include existing images as JSON string
+  const existingImages = (currentProduct.images || []).map(img => img.imageUrl);
+  formData.append("existingImages", JSON.stringify(existingImages));
 
   try {
     const response = await fetch(`${API_BASE_URL}/admin/products/${currentProduct.id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedProductData),
+      // DO NOT set Content-Type; browser sets multipart/form-data automatically
+      body: formData,
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to update product");
+      // Attempt to parse JSON error if backend sent JSON
+      let errorMessage = "Failed to update product";
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorMessage;
+      } catch {}
+      throw new Error(errorMessage);
     }
 
     const result = await response.json();
     toast({
       title: "Product Updated",
-      description: result.message,
+      description: result.message || "Product updated successfully",
     });
+
     setIsEditingProduct(false);
     setCurrentProduct(null);
     fetchProducts();
@@ -510,6 +495,7 @@ const handleEditProduct = async (e: React.FormEvent) => {
     });
   }
 };
+
 
 
   const handleDeleteProduct = async (id: number) => { /* ... (existing code) ... */
