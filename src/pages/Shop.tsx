@@ -89,41 +89,49 @@ const ProductImageCarousel = ({ images }: { images: string[] }) => {
 const API = import.meta.env.VITE_API_URL || "https://breezer-electronics-3.onrender.com";
 
 // --- PATCHED normalize function ---
-const normalizeProductImages = (products: Product[], apiBase: string) => {
+// --- Corrected normalize function ---
+// --- Simplified normalizeProductImages function ---
+const normalizeProductImages = (products, apiBase) => {
   return products.map(p => {
-    // --- Handle images array ---
-    let images: { imageUrl: string }[] = [];
+    let images = [];
+
     if (Array.isArray(p.images)) {
       images = p.images.map(img => {
-        let url = '';
-        if (typeof img === 'string') url = img;
-        else if (typeof img === 'object' && img !== null) {
-          url = img.imageUrl || img.imageUrl || '';
+        let imageUrl = '';
+        
+        // Use a direct approach: check for nested 'url' or 'path'
+        if (typeof img.imageUrl === 'object' && img.imageUrl !== null) {
+          imageUrl = img.imageUrl.url || img.imageUrl.path;
+        } 
+        
+        // If a valid URL was found, construct the full URL
+        if (imageUrl) {
+          const fullUrl = imageUrl.startsWith('http') ? imageUrl : `${apiBase}${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`;
+          return { imageUrl: fullUrl };
         }
-        return {
-          imageUrl: url.startsWith('http') ? url : `${apiBase}${url.startsWith('/') ? url : '/' + url}`
-        };
-      });
+        
+        // If no valid URL was found, return null
+        return null;
+      }).filter(Boolean); // This filters out all null entries
     }
 
-    // --- Ensure thumbnail ---
-    let thumbnailUrl = '';
-    if (p.thumbnailUrl) {
-      thumbnailUrl = p.thumbnailUrl.startsWith('http')
-        ? p.thumbnailUrl
-        : `${apiBase}${p.thumbnailUrl.startsWith('/') ? p.thumbnailUrl : '/' + p.thumbnailUrl}`;
-    } else if (images.length > 0) {
+    // Determine the thumbnail URL with fallbacks
+    let thumbnailUrl = p.thumbnailUrl;
+    if (!thumbnailUrl && images.length > 0) {
       thumbnailUrl = images[0].imageUrl;
-    } else {
+    } else if (thumbnailUrl && !thumbnailUrl.startsWith('http')) {
+      thumbnailUrl = `${apiBase}${thumbnailUrl.startsWith('/') ? thumbnailUrl : '/' + thumbnailUrl}`;
+    }
+    
+    if (!thumbnailUrl) {
       thumbnailUrl = 'https://placehold.co/176x176/e0e0e0/000000?text=NoImage';
     }
 
-    // --- Map backend category fields to frontend structure ---
-    const category = (p as any).category_slug || (p as any).category_id
+    const category = (p.category_slug || p.category_id)
       ? {
-          id: (p as any).category_id || 0,
-          name: (p as any).category_name || 'Unknown',
-          slug: (p as any).category_slug || 'unknown'
+          id: p.category_id || 0,
+          name: p.category_name || 'Unknown',
+          slug: p.category_slug || 'unknown'
         }
       : null;
 
@@ -131,12 +139,11 @@ const normalizeProductImages = (products: Product[], apiBase: string) => {
       ...p,
       images,
       thumbnailUrl,
-      isActive: Boolean((p as any).is_active ?? p.isActive), // support backend is_active
+      isActive: Boolean(p.is_active ?? p.isActive),
       category,
     };
   });
 };
-
 
 const Shop = () => {
   const { toast } = useToast();
