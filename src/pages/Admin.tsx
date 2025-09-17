@@ -992,6 +992,7 @@ const handleDeleteOrder = async (id: number) => {
     { id: "categories", label: "Categories", icon: List },
     { id: "portfolio", label: "Portfolio", icon: Briefcase },
     { id: "project-types", label: "Project Types", icon: Type }, // New tab
+     { id: "blog", label: "Write a blog", icon: Type }, // New tab
   ];
 
   return (

@@ -155,7 +155,7 @@ const Blog = () => {
                           </span>
                         </div>
                         <h3 className="text-xl font-semibold text-primary hover:text-secondary transition-colors">
-                            <Link to={`/blog/${post.slug}`}>{post.title}</Link>
+                          <Link to={`/blog/${post.slug}`}>{post.title}</Link>
                         </h3>
 
                         <p className="text-muted-foreground">{post.excerpt}</p>
