@@ -1702,7 +1702,7 @@ const handleDeleteOrder = async (id: number) => {
               thumbnailUrl, bodyImages, stock, isActive
             };
 
-            const res = await fetch(`${API_BASE_URL}/api/admin/products/${currentProduct.id}`, {
+            const res = await fetch(`${API_BASE_URL}/admin/products/${currentProduct.id}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(payload)
