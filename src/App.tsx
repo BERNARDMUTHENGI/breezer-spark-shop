@@ -24,6 +24,7 @@ import AdminLogin from "./pages/AdminLogin";
 import BlogAdminDashboard from "./pages/BlogAdminDashboard";
 import ProtectedAdminRoute from "./components/routes/ProtectedAdminRoute";
 import { FaWhatsapp } from "react-icons/fa";
+import ProductDetail from "./pages/ProductDetail";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
                   <Route path="/portfolio" element={<Portfolio />} />
                   <Route path="/blog" element={<Blog />} />
                  <Route path="/blog/:slug" element={<BlogPost />} />
+                 <Route path="/product/:slug" element={<ProductDetail />} />
                   
 
                   {/* Admin routes */}
