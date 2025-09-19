@@ -1,5 +1,7 @@
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState,lazy, Suspense, useEffect, useCallback, useMemo } from "react";
+const ReactQuill = lazy(() => import("react-quill"));
+import "react-quill/dist/quill.snow.css";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -142,6 +144,9 @@ const Admin = () => {
   const [isAddingProjectType, setIsAddingProjectType] = useState(false);
   const [isEditingProjectType, setIsEditingProjectType] = useState(false);
   const [currentProjectType, setCurrentProjectType] = useState<ProjectType | null>(null);
+
+  const [productDescription, setProductDescription] = useState("");
+
 
 
   const { toast } = useToast();
@@ -1519,12 +1524,21 @@ const handleDeleteOrder = async (id: number) => {
         </div>
 
         {/* Description */}
-        <div>
-          <Label htmlFor="description" className="text-sm font-medium text-gray-700 flex items-center">
-            <Info className="h-4 w-4 mr-2" />Description
-          </Label>
-          <Textarea id="description" name="description" className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" />
-        </div>
+        {/* Description */}
+<div>
+  <Label htmlFor="description" className="text-sm font-medium text-gray-700 flex items-center">
+    <Info className="h-4 w-4 mr-2" />Description
+  </Label>
+  <Suspense fallback={<div>Loading editor...</div>}>
+    <ReactQuill
+      value={productDescription} // use useState for description
+      onChange={setProductDescription} // update on change
+      theme="snow"
+      className="mt-1 bg-white"
+    />
+  </Suspense>
+</div>
+
 
         {/* Category */}
         <div>
@@ -1708,17 +1722,21 @@ const handleDeleteOrder = async (id: number) => {
         </div>
 
         {/* Description */}
-        <div>
-          <Label htmlFor="edit-description" className="text-sm font-medium text-gray-700 flex items-center">
-            <Info className="h-4 w-4 mr-2" />Description
-          </Label>
-          <Textarea
-            id="edit-description"
-            name="description"
-            defaultValue={currentProduct.description || ''}
-            className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
-          />
-        </div>
+       {/* Description */}
+<div>
+  <Label htmlFor="description" className="text-sm font-medium text-gray-700 flex items-center">
+    <Info className="h-4 w-4 mr-2" />Description
+  </Label>
+  <Suspense fallback={<div>Loading editor...</div>}>
+    <ReactQuill
+      value={productDescription} // use useState for description
+      onChange={setProductDescription} // update on change
+      theme="snow"
+      className="mt-1 bg-white"
+    />
+  </Suspense>
+</div>
+
 
         {/* Category */}
         <div>
