@@ -22,42 +22,42 @@ const About = () => {
       // Updated to image path for Electrical Contracting
       icon: "/contracting.jpg",
       title: "Electrical Contracting",
-      description: "Complete electrical installations, wiring, and power distribution systems for residential, commercial, and industrial projects.",
-      features: ["New installations", "Electrical upgrades", "Power distribution", "Commercial wiring"]
+      description: "Breezer Electric Kenya provides professional electrical contracting services with full EPRA certification. Our electric contractors handle complex installations, maintenance, and automation integration across Kenya's residential, commercial, and industrial sectors.",
+      features: ["Complete electric system design and installation", "Electric panel upgrades and automation integration", "Wiring and rewiring for homes and businesses across Kenya", "Electric safety inspections and compliance certificationg"]
     },
     {
       // Updated to image path for Generator Installation & Maintenance
       icon: "/generator.jpg",
-      title: "Generator Installation & Maintenance",
-      description: "Professional generator installation, commissioning, and ongoing maintenance services to ensure reliable backup power.",
-      features: ["Generator installation", "Maintenance services", "Commissioning", "Emergency repairs"]
+      title: "Generator Installation & Automation",
+      description: "Reliable backup power solutions with intelligent automation controls by Breezer Electric Kenya. Our generator installations include smart automation systems that ensure seamless power transitions and optimal performance across Kenya's varied electric grid conditions.",
+      features: ["Generator sizing and selection for Kenya applications", "Maintenance programs for optimal generator performance", "Professional installation with automation integration", "Smart transfer switches and electric monitoring systems"]
     },
     {
       // Updated to image path for Electrical Design
       icon: "/design.jpg", // New image path
-      title: "Electrical Design",
-      description: "Professional electrical design services for optimal power distribution and system efficiency.",
+      title: "Electrical Design Services",
+      description: "Breezer Electric Kenya delivers professional electrical design services tailored to optimize power distribution and enhance system efficiency across Kenya. Our expert team specializes in creating innovative electrical and automation solutions for residential, commercial, and industrial projects.",
       features: ["System design", "Load calculations", "Circuit planning", "Technical drawings"]
     },
     {
       // Updated to image path for CCTV & Security Systems
       icon: "/cctv.jpg",
-      title: "CCTV & Security Systems",
-      description: "Advanced security solutions including CCTV installation, access control, and alarm systems.",
+      title: "CCTV & Security Automation Systems",
+      description: "Advanced security systems integrated with smart electric controls by Breezer Electric Kenya. Our CCTV installations include automation features that enhance security while optimizing electric consumption across Kenya properties",
       features: ["CCTV installation", "Access control", "Alarm systems", "Remote monitoring"]
     },
     {
       // Updated to image path for Solar Energy Solutions
       icon: "/solar.jpg",
-      title: "Solar Energy Solutions",
-      description: "Sustainable solar power systems designed and installed to reduce energy costs and environmental impact.",
-      features: ["Solar panel installation", "Grid-tie systems", "Battery backup", "Energy audits"]
+      title: "Solar Electric & Automation Systems",
+      description: "Sustainable energy solutions with advanced automation management by Breezer Electric Kenya. Our solar electric systems integrate seamlessly with home and business automation for maximum efficiency and convenience throughout Kenya.",
+      features: ["Solar system design and electric integration", "Grid-tie systems with smart electric monitoring", "Battery storage with intelligent automation controls", "Energy audits"]
     },
     {
       // Updated to image path for Electrical Inspection & Repairs
       icon: "/repair.jpg", // New image path
       title: "Electrical Inspection & Repairs",
-      description: "Comprehensive electrical inspections, troubleshooting, and repair services to ensure safety and compliance.",
+      description: "Breezer Electric Kenya provides top-tier electrical inspection and repair services across Kenya, ensuring safety and compliance with the latest standards. Our skilled technicians conduct thorough electrical inspections and handle complex repairs, integrating automation solutions to enhance system reliability.",
       features: ["Safety inspections", "Fault finding", "Emergency repairs", "Compliance testing"]
     }
   ];
@@ -102,10 +102,13 @@ const About = () => {
             <div className="space-y-6">
               <h2 className="text-4xl font-bold text-primary">About us</h2>
               <p className="text-lg text-muted-foreground">
-               Breezer Electric & Automation Limited is a registered company in Kenya with Energy and Petroleum Regulatory Authority (EPRA) board of license and with National Construction Authority (NCA) with a Class One.
-               A combination of astule electrical problem solving skills, a passion for customer service and a can do attitude in exceeding customer expectations, offering a personalised service we believe that honesty, integrity and commitment is our key to success.
-              During the early years and with organic growth, business reputation spread throughout within a very short time we have established a good clientele and have built our trust in them.
-              We empower our people to: Intervene when they witness any risk behavior, lead by example, identify and manage hazards associated with the activities for which they are responsible.
+               Breezer Electric is Kenya's leading electrical contractor specializing in professional electrical 
+               installations, automation systems, and sustainable energy solutions. With years of industry experience 
+               and proper EPRA & NCA certifications, we have established ourselves as the go-to electrical service
+                provider for quality, reliability, and professional excellenceBreezer Electric is Kenya's leading 
+                electrical contractor specializing in professional electrical installations, automation systems, and 
+                sustainable energy solutions. With years of industry experience and proper EPRA & NCA certifications,
+                 we have established ourselves as the go-to electrical service provider for quality, reliability, and professional excellence.
               </p>
               <p className="text-lg text-muted-foreground">
                 Our team of certified professionals is committed to delivering quality, value, and 
@@ -126,7 +129,7 @@ const About = () => {
               <h3 className="text-2xl font-semibold text-primary mb-6">Our Mission</h3>
               <p className="text-lg text-muted-foreground mb-6">
                 
-              To be the lead design and build firm throughout east and central Africa. We are committed to leading the industry in safety, customer satisfaction and workforce training. We will meet and exceed customer expectations through our full line of electrical design, build and maintenance services and robust technology, completing projects on time and on budget. <br />
+              To provide safe, reliable, and professional electrical solutions that meet the highest standards of quality and safety. We are committed to helping Kenya transition to sustainable energy while maintaining the highest levels of electrical safety and compliance. <br />
               </p><h3 className="text-2xl font-semibold text-primary mb-6">Our Vision</h3>
               <p className="text-lg text-muted-foreground">
                 To be the leading provider of affordable and quality electrical services in Kenya.
@@ -141,7 +144,7 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-primary mb-4">Our Core Values</h2>
-            <p className="text-xl text-muted-foreground">The principles that guide everything we do</p>
+            <p className="text-xl text-muted-foreground">At Breezer Electric, we understand Kenya's unique electric infrastructure needs and automation opportunities. Our commitment extends beyond installation to building long-term relationships with our Kenyan clients.</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -166,8 +169,7 @@ const About = () => {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-primary mb-4">Our Professional Services</h2>
             <p className="text-xl text-muted-foreground">
-              Comprehensive electrical solutions for all your needs
-            </p>
+              Breezer Electric Kenya provides comprehensive electrical contracting and automation services for residential, commercial, and industrial clients throughout Kenya. Our EPRA certified electric contractors combine traditional electrical expertise with cutting-edge automation technology to deliver solutions that enhance safety, efficiency, and convenience. From Nairobi to Mombasa, Kisumu to Nakuru, Breezer Electric serves all major Kenya cities with professional electric installations, smart automation systems, and reliable maintenance services.  </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

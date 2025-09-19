@@ -20,25 +20,25 @@ const Home = () => {
       // Using direct image path for Electrical Contracting
       icon: "/contracting.jpg", 
       title: "Electrical Contracting",
-      description: "Professional electrical installations for residential and commercial projects"
+      description: "Professional electric installations for homes and businesses across Kenya. Breezer Electric's certified electricians ensure safety, compliance, and seamless automation integration."
     },
     {
       // Using direct image path for Generator Installation
       icon: "/generator.jpg", 
       title: "Generator Installation",
-      description: "Reliable backup power solutions with professional installation and maintenance"
+      description: " Reliable backup power solutions with professional installation throughout Kenya. Our electric contractors integrate generators with smart automation systems for optimal performance."
     },
     {
       // Using direct image path for Solar Solutions
       icon: "/solar.jpg", 
       title: "Solar Solutions", 
-      description: "Sustainable energy systems designed for your specific needs"
+      description: "Sustainable electric power with advanced automation controls. Breezer Electric Kenya designs solar systems that integrate perfectly with home and business automation."
     },
     {
       // Using direct image path for CCTV & Security
       icon: "/cctv.jpg",
       title: "CCTV & Security",
-      description: "Advanced security systems to protect your property and assets"
+      description: "Advanced security automation systems to protect your Kenya property. Smart CCTV integration with electric systems for comprehensive protection."
     }
   ];
 
@@ -46,17 +46,17 @@ const Home = () => {
     {
       icon: Award,
       title: "EPRA & NCA Certified",
-      description: "Fully licensed and certified electrical contractors"
+      description: "Breezer Electric Kenya holds official government certifications, ensuring all electric and automation work meets Kenya's highest safety standards."
     },
     {
       icon: Shield,
       title: "Quality Assured",
-      description: "Committed to delivering reliable, high-quality electrical solutions"
+      description: "High-grade materials and industry best practices for reliable, long-lasting electric and automation installations across Kenya."
     },
     {
       icon: Wrench,
-      title: "Professional Service",
-      description: "Expert technicians with years of industry experience"
+      title: "Expert Technicians",
+      description: "Years of experience in electric work, automation systems, and smart home technologies throughout Kenya's residential and commercial sectors."
     }
   ];
 
@@ -77,8 +77,7 @@ const Home = () => {
               <span className="block text-secondary">Solutions & Automation</span>
             </h1>
             <p className="text-xl md:text-2xl text-primary-foreground/90 max-w-3xl mx-auto">
-              EPRA & NCA Class One certified electrical contractors providing quality,
-              reliable solutions for residential and commercial projects across Kenya.
+              Professional electrical and automation solutions for residential and commercial projects across Kenya. Quality, reliability, and certified expertise you can trust
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild className="btn-hero">
@@ -127,7 +126,7 @@ const Home = () => {
               Our Expert Services
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Comprehensive electrical solutions backed by certifications and years of experience
+              Breezer Electric Kenya offers comprehensive electrical solutions backed by certifications and years of experience across Kenya. Our expert services cover a wide range of electrical and automation needs, ensuring top-notch quality and reliability.
             </p>
           </div>
 
@@ -188,10 +187,11 @@ const Home = () => {
       <section className="py-20 bg-gray-700 text-primary-foreground">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
           <h2 className="text-4xl font-bold">
-            Ready to Start Your Electrical Project?
+            Ready to Start Your Electric & Automation Project in Kenya?
           </h2>
           <p className="text-xl text-primary-foreground/90">
-            Get in touch with our certified electrical contractors for a free consultation and quote.
+            Get in touch with Breezer Electric's certified electrical and automation contractors for a free consultation and quote. We serve all of Kenya with professional electric services and cutting-edge automation solutions.
+
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild className="btn-hero">

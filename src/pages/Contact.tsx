@@ -270,7 +270,8 @@ const Contact = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold">EPRA & NCA Certified</h4>
-                      <p className="text-sm text-muted-foreground">Fully licensed electrical contractors</p>
+                      <p className="text-sm text-muted-foreground"> Fully licensed electric contractors authorized for all Kenya electrical work
+</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
@@ -279,7 +280,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold">Quality Guaranteed</h4>
-                      <p className="text-sm text-muted-foreground">All work backed by warranty and professional standards</p>
+                      <p className="text-sm text-muted-foreground">Premium electric components suitable for Kenya's climate</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">
