@@ -36,6 +36,7 @@ import {
   Factory, // For ProjectType icons
   Award, // For ProjectType icons
   Menu, // For mobile menu
+  Pen,
   X // For mobile menu close
 } from "lucide-react";
 
@@ -987,7 +988,7 @@ const handleDeleteOrder = async (id: number) => {
     { id: "categories", label: "Categories", icon: List },
     { id: "portfolio", label: "Portfolio", icon: Briefcase },
     { id: "project-types", label: "Project Types", icon: Type }, // New tab
-     { id: "blog", label: "Write a blog", icon: Type }, // New tab
+  
   ];
 
   return (
@@ -1015,8 +1016,10 @@ const handleDeleteOrder = async (id: number) => {
             <h1 className="text-3xl font-extrabold tracking-tight">Admin</h1>
             <p className="text-primary-foreground/80 text-sm">Breezer Electric</p>
           </div>
+          
 
           <nav className="space-y-3">
+            
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -1035,11 +1038,21 @@ const handleDeleteOrder = async (id: number) => {
                 <span className="font-medium">{tab.label}</span>
               </button>
             ))}
+           
+
+            <a 
+              href="/blogadmin" 
+              className="flex items-center mt-4 ml-2 text-lg font-bold text-white-600"
+            >
+              <Pen className="w-5 h-5 mr-2" />
+              Write Blog
+            </a>
+
             <div className="pt-8 space-y-3 border-t border-primary-hover mt-8">
               <Button
                 variant="ghost"
                 className="w-full flex items-center space-x-3 px-5 py-3 rounded-xl text-primary-foreground/80 hover:bg-primary-hover hover:text-primary-foreground justify-start"
-                onClick={() => window.open("https://breezerelectricals.com.com", "_blank")}
+                onClick={() => window.open("https://breezerelectric.com", "_blank")}
               >
                 <Link className="h-5 w-5" />
                 <span className="font-medium">Visit Website</span>
@@ -1332,84 +1345,84 @@ const handleDeleteOrder = async (id: number) => {
             </div>
           )}
 
-          {/* Portfolio Tab */}
-          {activeTab === "portfolio" && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl lg:text-3xl font-bold text-primary">Portfolio Management</h2>
-                <Button onClick={() => setIsAddingProject(true)} className="px-4 py-2 lg:px-6 lg:py-3 rounded-full shadow-md hover:shadow-lg transition-all duration-200">
-                  <Plus className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
-                  <span className="hidden sm:inline">Add Project</span>
-                </Button>
-              </div>
+         {/* Portfolio Tab */}
+{activeTab === "portfolio" && (
+  <div className="space-y-6">
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-2xl lg:text-3xl font-bold text-primary">Portfolio Management</h2>
+      <Button onClick={() => setIsAddingProject(true)} className="px-4 py-2 lg:px-6 lg:py-3 rounded-full shadow-md hover:shadow-lg transition-all duration-200">
+        <Plus className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
+        <span className="hidden sm:inline">Add Project</span>
+      </Button>
+    </div>
 
-              <Card className="rounded-xl shadow-lg border border-gray-200">
-                <CardHeader>
-                  <CardTitle className="text-primary">All Portfolio Projects</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[1200px] border-collapse">
-                      <thead>
-                        <tr className="border-b bg-gray-50 text-left text-sm font-semibold text-muted-foreground">
-                          <th className="p-4 rounded-tl-lg">Project Title</th>
-                          <th className="p-4">Category</th>
-                          <th className="p-4">Type</th>
-                          <th className="p-4">Location</th>
-                          <th className="p-4">Year</th>
-                          <th className="p-4">Services</th>
-                          <th className="p-4">Image</th>
-                          <th className="p-4 rounded-tr-lg">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredPortfolioProjects.length > 0 ? (
-                          filteredPortfolioProjects.map((project) => (
-                            <tr key={project.id} className="border-b hover:bg-muted/50 transition-colors">
-                              <td className="p-4 font-medium text-gray-700">{project.title}</td>
-                              <td className="p-4">{project.category}</td>
-                              <td className="p-4 capitalize">{project.type_name || 'N/A'}</td>
-                              <td className="p-4">{project.location}</td>
-                              <td className="p-4">{project.year}</td>
-                              <td className="p-4 text-sm text-muted-foreground">
-                                {project.services && project.services.length > 0 ? project.services.join(', ') : 'N/A'}
-                              </td>
-                              <td className="p-4">
-                                {project.image ? (
-                                    <img src={project.image} alt={project.title} className="w-12 h-12 object-cover rounded-md" onError={(e) => (e.currentTarget.src = 'https://placehold.co/48x48/e0e0e0/000000?text=NoImage')} />
-                                ) : (
-                                    <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                                )}
-                              </td>
-                              <td className="p-4">
-                                <div className="flex flex-col sm:flex-row gap-2">
-                                  <Button size="sm" variant="outline" title="Edit Project" onClick={() => handleEditProjectButtonClick(project)}>
-                                    <Edit className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    title="Delete Project"
-                                    onClick={() => handleDeleteProject(project.id)}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={8} className="text-center p-6 text-muted-foreground">No portfolio projects found. Add a new project!</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+    <Card className="rounded-xl shadow-lg border border-gray-200">
+      <CardHeader>
+        <CardTitle className="text-primary">All Portfolio Projects</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b bg-gray-50 text-left text-sm font-semibold text-muted-foreground">
+                <th className="p-4 rounded-tl-lg">Project Title</th>
+                <th className="p-4">Category</th>
+                <th className="p-4">Type</th>
+                <th className="p-4">Location</th>
+                <th className="p-4">Year</th>
+                <th className="p-4 max-w-[200px]">Services</th>
+                <th className="p-4">Image</th>
+                <th className="p-4 rounded-tr-lg">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPortfolioProjects.length > 0 ? (
+                filteredPortfolioProjects.map((project) => (
+                  <tr key={project.id} className="border-b hover:bg-muted/50 transition-colors">
+                    <td className="p-4 font-medium text-gray-700">{project.title}</td>
+                    <td className="p-4">{project.category}</td>
+                    <td className="p-4 capitalize">{project.type_name || 'N/A'}</td>
+                    <td className="p-4">{project.location}</td>
+                    <td className="p-4">{project.year}</td>
+                    <td className="p-4 text-sm text-muted-foreground max-w-[200px] truncate" title={project.services && project.services.length > 0 ? project.services.join(', ') : 'N/A'}>
+                      {project.services && project.services.length > 0 ? project.services.join(', ') : 'N/A'}
+                    </td>
+                    <td className="p-4">
+                      {project.image ? (
+                          <img src={project.image} alt={project.title} className="w-12 h-12 object-cover rounded-md" onError={(e) => (e.currentTarget.src = 'https://placehold.co/48x48/e0e0e0/000000?text=NoImage')} />
+                      ) : (
+                          <ImageIcon className="h-12 w-12 text-muted-foreground" />
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <Button size="sm" variant="outline" title="Edit Project" onClick={() => handleEditProjectButtonClick(project)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          title="Delete Project"
+                          onClick={() => handleDeleteProject(project.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={8} className="text-center p-6 text-muted-foreground">No portfolio projects found. Add a new project!</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+)}
 
           {/* Project Types Tab */}
           {activeTab === "project-types" && (
@@ -1753,79 +1766,106 @@ const handleDeleteOrder = async (id: number) => {
             className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
           />
         </div>
+{/* Thumbnail Upload */}
+<div>
+  <Label htmlFor="thumbnailUpload" className="text-sm font-medium text-gray-700 flex items-center">
+    <ImageIcon className="h-4 w-4 mr-2" />Thumbnail
+  </Label>
+  <div className="flex gap-2 items-center mt-1">
+    <input
+      id="thumbnailUpload"
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          const formData = new FormData();
+          // MUST be "image", not "thumbnail"
+          formData.append("image", file);
 
-        {/* Thumbnail Upload */}
-        <div>
-          <Label htmlFor="thumbnailUpload" className="text-sm font-medium text-gray-700 flex items-center">
-            <ImageIcon className="h-4 w-4 mr-2" />Thumbnail
-          </Label>
-          <div className="flex gap-2 items-center mt-1">
-            <input
-              id="thumbnailUpload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={async (e) => {
-                const file = e.target.files?.[0]; 
-                if(!file) return;
-                try {
-                  const formData = new FormData(); 
-                  formData.append("thumbnail", file);
-                  const res = await fetch(`${API_BASE_URL}/upload-multiple`, { method:"POST", body:formData });
-                  const data = await res.json();
-                  if(res.ok && data.images?.length > 0) {
-                    const urlField = document.getElementById("thumbnailUrl") as HTMLInputElement;
-                    if(urlField) urlField.value = data.images[0];
-                  } else { alert("Upload failed"); }
-                } catch(err) { console.error(err); alert("Upload failed"); }
-              }}
-            />
-            <Button type="button" variant="outline" onClick={() => document.getElementById("thumbnailUpload")?.click()}>Choose File</Button>
-            <Input
-              id="thumbnailUrl"
-              name="thumbnailUrl"
-              type="url"
-              placeholder="https://example.com/image.jpg"
-              className="flex-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
-              defaultValue={currentProduct.thumbnailUrl || ''}
-            />
-          </div>
-        </div>
+          const res = await fetch(`${API_BASE_URL}/upload`, {
+            method: "POST",
+            body: formData,
+          });
 
-        {/* Additional Images */}
-        <div>
-          <Label htmlFor="edit-imagesUpload" className="text-sm font-medium text-gray-700 flex items-center">
-            <ImageIcon className="h-4 w-4 mr-2" />Additional Images
-          </Label>
-          <input
-            id="edit-imagesUpload"
-            type="file"
-            name="images"
-            accept="image/*"
-            multiple
-            className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer"
-            onChange={async (e) => {
-              const files = e.target.files; 
-              if(!files?.length) return;
-              try {
-                const formData = new FormData();
-                Array.from(files).forEach(file => formData.append("images", file));
-                const res = await fetch(`${API_BASE_URL}/upload-multiple`, { method:"POST", body:formData });
-                const data = await res.json();
-                if(res.ok && data.images) {
-                  const extraImagesField = document.getElementById("extraImages") as HTMLInputElement;
-                  if(extraImagesField) extraImagesField.value = data.images.join(",");
-                } else { alert("Upload failed"); }
-              } catch(err){ console.error(err); alert("Upload failed"); }
-            }}
-          />
-          <input
-            type="hidden"
-            id="extraImages"
-            name="extraImages"
-            defaultValue={currentProduct.images?.map(img => img.imageUrl).join(",") || ""}
-          />
-        </div>
+          const data = await res.json();
+          if (res.ok && data.imageUrl) {
+            const urlField = document.getElementById("thumbnailUrl") as HTMLInputElement;
+            if (urlField) urlField.value = data.imageUrl;
+          } else {
+            alert("Upload failed");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Upload failed");
+        }
+      }}
+    />
+    <Button
+      type="button"
+      variant="outline"
+      onClick={() => document.getElementById("thumbnailUpload")?.click()}
+    >
+      Choose File
+    </Button>
+    <Input
+      id="thumbnailUrl"
+      name="thumbnailUrl"
+      type="url"
+      placeholder="https://example.com/image.jpg"
+      className="flex-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
+      defaultValue={currentProduct.thumbnailUrl || ""}
+    />
+  </div>
+</div>
+
+{/* Additional Images */}
+<div>
+  <Label htmlFor="edit-imagesUpload" className="text-sm font-medium text-gray-700 flex items-center">
+    <ImageIcon className="h-4 w-4 mr-2" />Additional Images
+  </Label>
+  <input
+    id="edit-imagesUpload"
+    type="file"
+    name="images"
+    accept="image/*"
+    multiple
+    className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer"
+    onChange={async (e) => {
+      const files = e.target.files;
+      if (!files?.length) return;
+      try {
+        const formData = new FormData();
+        Array.from(files).forEach((file) => formData.append("images", file));
+
+        const res = await fetch(`${API_BASE_URL}/upload-multiple`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (res.ok && data.images) {
+          const extraImagesField = document.getElementById("extraImages") as HTMLInputElement;
+          if (extraImagesField) extraImagesField.value = data.images.join(",");
+        } else {
+          alert("Upload failed");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Upload failed");
+      }
+    }}
+  />
+  <input
+    type="hidden"
+    id="extraImages"
+    name="extraImages"
+    defaultValue={currentProduct.images?.map((img) => img.imageUrl).join(",") || ""}
+  />
+</div>
+
 
         {/* Stock */}
         <div>
@@ -2040,93 +2080,115 @@ const handleDeleteOrder = async (id: number) => {
       )}
 
       {/* Edit Project Modal (Existing) */}
-      {isEditingProject && currentProject && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
-            <h3 className="text-2xl font-bold text-primary mb-6">Edit Portfolio Project</h3>
-            <form onSubmit={handleEditProject} className="space-y-5">
-              <div>
-                <Label htmlFor="edit-project-title" className="text-sm font-medium text-gray-700 flex items-center"><Briefcase className="h-4 w-4 mr-2" />Project Title *</Label>
-                <Input id="edit-project-title" name="title" required defaultValue={currentProject.title} className="mt-1 rounded-md" />
-              </div>
-              <div>
-                <Label htmlFor="edit-project-description" className="text-sm font-medium text-gray-700 flex items-center"><Feather className="h-4 w-4 mr-2" />Description *</Label>
-                <Textarea id="edit-project-description" name="description" required defaultValue={currentProject.description} className="mt-1 rounded-md" />
-              </div>
-              <div>
-                <Label htmlFor="edit-project-category" className="text-sm font-medium text-gray-700 flex items-center"><Tag className="h-4 w-4 mr-2" />Category (e.g., Solar, Electrical) *</Label>
-                <Input id="edit-project-category" name="category" required defaultValue={currentProject.category} className="mt-1 rounded-md" />
-              </div>
-              <div>
-                <Label htmlFor="edit-project-type" className="text-sm font-medium text-gray-700 flex items-center"><Type className="h-4 w-4 mr-2" />Project Type *</Label>
-                <select
-                  id="edit-project-type"
-                  name="typeId"
-                  required
-                  // Find the ID based on currentProject.type (slug) to pre-select
-                  defaultValue={projectTypes.find(t => t.slug === currentProject.type)?.id || ''}
-                  className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                  <option value="">Select a Project Type</option>
-                  {projectTypes.map((type) => (
-                    <option key={type.id} value={type.id}>
-                      {type.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <Label htmlFor="edit-project-location" className="text-sm font-medium text-gray-700 flex items-center"><MapPin className="h-4 w-4 mr-2" />Location *</Label>
-                <Input id="edit-project-location" name="location" required defaultValue={currentProject.location} className="mt-1 rounded-md" />
-              </div>
-              <div>
-                <Label htmlFor="edit-project-year" className="text-sm font-medium text-gray-700 flex items-center"><Calendar className="h-4 w-4 mr-2" />Year *</Label>
-                <Input id="edit-project-year" name="year" type="number" required defaultValue={currentProject.year} max={new Date().getFullYear()} className="mt-1 rounded-md" />
-              </div>
-              <div>
-                <Label htmlFor="edit-project-services" className="text-sm font-medium text-gray-700 flex items-center"><List className="h-4 w-4 mr-2" />Services (comma-separated) *</Label>
-                <Input id="edit-project-services" name="services" required defaultValue={currentProject.services.join(', ')} className="mt-1 rounded-md" />
-              </div>
-            {/* Project Image Upload (File + URL) */}
+{isEditingProject && currentProject && (
+  <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+    <div className="bg-white rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+      <h3 className="text-2xl font-bold text-primary mb-6">Edit Portfolio Project</h3>
+      <form onSubmit={handleEditProject} className="space-y-5">
+        <div>
+          <Label htmlFor="edit-project-title" className="text-sm font-medium text-gray-700 flex items-center">
+            <Briefcase className="h-4 w-4 mr-2" />Project Title *
+          </Label>
+          <Input id="edit-project-title" name="title" required defaultValue={currentProject.title} className="mt-1 rounded-md" />
+        </div>
+
+        <div>
+          <Label htmlFor="edit-project-description" className="text-sm font-medium text-gray-700 flex items-center">
+            <Feather className="h-4 w-4 mr-2" />Description *
+          </Label>
+          <Textarea id="edit-project-description" name="description" required defaultValue={currentProject.description} className="mt-1 rounded-md" />
+        </div>
+
+        <div>
+          <Label htmlFor="edit-project-category" className="text-sm font-medium text-gray-700 flex items-center">
+            <Tag className="h-4 w-4 mr-2" />Category (e.g., Solar, Electrical) *
+          </Label>
+          <Input id="edit-project-category" name="category" required defaultValue={currentProject.category} className="mt-1 rounded-md" />
+        </div>
+
+        <div>
+          <Label htmlFor="edit-project-type" className="text-sm font-medium text-gray-700 flex items-center">
+            <Type className="h-4 w-4 mr-2" />Project Type *
+          </Label>
+          <select
+            id="edit-project-type"
+            name="typeId"
+            required
+            defaultValue={projectTypes.find(t => t.slug === currentProject.type)?.id || ''}
+            className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="">Select a Project Type</option>
+            {projectTypes.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <Label htmlFor="edit-project-location" className="text-sm font-medium text-gray-700 flex items-center">
+            <MapPin className="h-4 w-4 mr-2" />Location *
+          </Label>
+          <Input id="edit-project-location" name="location" required defaultValue={currentProject.location} className="mt-1 rounded-md" />
+        </div>
+
+        <div>
+          <Label htmlFor="edit-project-year" className="text-sm font-medium text-gray-700 flex items-center">
+            <Calendar className="h-4 w-4 mr-2" />Year *
+          </Label>
+          <Input id="edit-project-year" name="year" type="number" required defaultValue={currentProject.year} max={new Date().getFullYear()} className="mt-1 rounded-md" />
+        </div>
+
+        <div>
+          <Label htmlFor="edit-project-services" className="text-sm font-medium text-gray-700 flex items-center">
+            <List className="h-4 w-4 mr-2" />Services (comma-separated) *
+          </Label>
+          <Input id="edit-project-services" name="services" required defaultValue={currentProject.services.join(', ')} className="mt-1 rounded-md" />
+        </div>
+
+        {/* Project Image Upload (File + URL) */}
+       {/* Project Image Upload (File + URL) */}
 <div>
   <Label htmlFor="project-imageUpload" className="text-sm font-medium text-gray-700 flex items-center">
-  <Link2 className="h-4 w-4 mr-2" />Project Image *
-</Label>
-<div className="flex gap-2 items-center mt-1">
-  {/* Hidden File Input */}
-  <input
-    id="project-imageUpload"
-    type="file"
-    accept="image/*"
-    className="hidden"
-  onChange={async (e) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    <Link2 className="h-4 w-4 mr-2" />Project Image *
+  </Label>
+  <div className="flex gap-2 items-center mt-1">
+    {/* Hidden File Input */}
+    <input
+      id="project-imageUpload"
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-  try {
-    const formData = new FormData();
-    formData.append("images", file); // single file
+        try {
+          const formData = new FormData();
+          formData.append("image", file); // must match backend single upload
 
-    const res = await fetch(`${API_BASE_URL}/api/upload-multiple`, {
-      method: "POST",
-      body: formData
-    });
+          // ✅ Fixed: no double /api
+          const res = await fetch(`${API_BASE_URL}/upload`, {
+            method: "POST",
+            body: formData,
+          });
 
-    const data = await res.json();
-    if (res.ok && data.images && data.images.length > 0) {
-      const urlField = document.getElementById("thumbnailUrl") as HTMLInputElement;
-      if (urlField) urlField.value = data.images[0]; // set first image URL
-    } else {
-      console.error("Thumbnail upload failed:", data);
-      alert("Thumbnail upload failed, check console.");
-    }
-  } catch (err) {
-    console.error("Thumbnail upload error:", err);
-    alert("Thumbnail upload failed, check console.");
-  }
-}}
-
+          const data = await res.json();
+          if (res.ok && data.imageUrl) {
+            const urlField = document.getElementById("project-imageUrl") as HTMLInputElement;
+            if (urlField) urlField.value = data.imageUrl;
+          } else {
+            console.error("Project image upload failed:", data);
+            alert("Upload failed, check console.");
+          }
+        } catch (err) {
+          console.error("Project image upload error:", err);
+          alert("Upload failed, check console.");
+        }
+      }}
     />
+
     {/* Choose File Button */}
     <Button
       type="button"
@@ -2149,23 +2211,30 @@ const handleDeleteOrder = async (id: number) => {
 </div>
 
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button type="submit" className="flex-1 py-2.5 rounded-lg text-lg font-semibold bg-blue-600 hover:bg-blue-700 transition-colors">
-                  Save Changes
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1 py-2.5 rounded-lg text-lg font-semibold border-gray-300 hover:bg-gray-100"
-                  onClick={() => { setIsEditingProject(false); setCurrentProject(null); }}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </div>
+        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          <Button
+            type="submit"
+            className="flex-1 py-2.5 rounded-lg text-lg font-semibold bg-blue-600 hover:bg-blue-700 transition-colors"
+          >
+            Save Changes
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1 py-2.5 rounded-lg text-lg font-semibold border-gray-300 hover:bg-gray-100"
+            onClick={() => {
+              setIsEditingProject(false);
+              setCurrentProject(null);
+            }}
+          >
+            Cancel
+          </Button>
         </div>
-      )}
+      </form>
+    </div>
+  </div>
+)}
+
 
       {/* Add Project Type Modal (NEW) */}
       {isAddingProjectType && (

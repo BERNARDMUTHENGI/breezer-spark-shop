@@ -145,9 +145,10 @@ const Blog = () => {
                   {filteredPosts.map((post) => (
                     <Card key={post.id} className="overflow-hidden card-service hover:shadow-lg transition-shadow">
                       <div 
-                        className="w-full h-48 bg-cover bg-center"
-                        style={{ backgroundImage: `url(${post.image})` }}
-                      ></div>
+  className="w-full h-48 bg-cover bg-center"
+  style={{ backgroundImage: `url(${post.image_url || "/placeholder.png"})` }}
+></div>
+
                       <CardContent className="p-6 space-y-4">
                         <div className="flex items-center text-sm text-muted-foreground">
                           <span className="bg-secondary/10 text-secondary px-2 py-1 rounded-full text-xs">

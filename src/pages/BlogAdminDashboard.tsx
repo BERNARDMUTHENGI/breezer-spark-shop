@@ -23,7 +23,8 @@ import {
   Search,
   X,
   Save,
-  Loader2
+  Loader2,
+  Upload
 } from "lucide-react";
 
 const BlogAdminDashboard = () => {
@@ -48,48 +49,49 @@ const BlogAdminDashboard = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-// Fetch blog posts from backend
-const fetchPosts = async () => {
-  try {
-    setLoading(true);
-    setError(null);
-    const response = await fetch(
-      "https://breezer-electronics-3.onrender.com/api/blog/posts"
-    );
+  const [uploadingImage, setUploadingImage] = useState(false);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  // Fetch blog posts from backend
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(
+        "https://breezer-electronics-3.onrender.com/api/blog/posts"
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Flexible handling of different response shapes
+      let postsArray = [];
+      if (Array.isArray(data)) {
+        postsArray = data;
+      } else if (Array.isArray(data.posts)) {
+        postsArray = data.posts;
+      } else if (Array.isArray(data.data)) {
+        postsArray = data.data;
+      } else {
+        throw new Error("Invalid data format from server");
+      }
+
+      setPosts(postsArray);
+
+      // Extract unique categories
+      const uniqueCategories = [...new Set(postsArray.map((post) => post.category))];
+      setCategories(uniqueCategories);
+
+    } catch (error) {
+      console.error("Error fetching blog posts:", error);
+      setError("Failed to load blog posts. Please try again later.");
+      setPosts([]);
+    } finally {
+      setLoading(false);
     }
-
-    const data = await response.json();
-
-    // Flexible handling of different response shapes
-    let postsArray = [];
-    if (Array.isArray(data)) {
-      postsArray = data;
-    } else if (Array.isArray(data.posts)) {
-      postsArray = data.posts;
-    } else if (Array.isArray(data.data)) {
-      postsArray = data.data;
-    } else {
-      throw new Error("Invalid data format from server");
-    }
-
-    setPosts(postsArray);
-
-    // Extract unique categories
-    const uniqueCategories = [...new Set(postsArray.map((post) => post.category))];
-    setCategories(uniqueCategories);
-
-  } catch (error) {
-    console.error("Error fetching blog posts:", error);
-    setError("Failed to load blog posts. Please try again later.");
-    setPosts([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   useEffect(() => {
     fetchPosts();
@@ -110,6 +112,51 @@ const fetchPosts = async () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+  };
+
+  // Handle image upload
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check if file is an image
+    if (!file.type.match('image.*')) {
+      setError("Please select an image file");
+      return;
+    }
+
+    setUploadingImage(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const token = localStorage.getItem('token');
+      const response = await fetch('https://breezer-electronics-3.onrender.com/api/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to upload image');
+      }
+
+      const data = await response.json();
+      setFormData(prev => ({
+        ...prev,
+        image_url: data.imageUrl
+      }));
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      setError(error.message || 'Failed to upload image. Please try again.');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   // Reset form
@@ -165,7 +212,7 @@ const fetchPosts = async () => {
       
       const method = editingPost ? 'PUT' : 'POST';
       
-      // Get auth token from localStorage (assuming you have an auth system)
+      // Get auth token from localStorage
       const token = localStorage.getItem('token');
       
       const response = await fetch(url, {
@@ -206,7 +253,7 @@ const fetchPosts = async () => {
     setError(null);
     
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('token');
       const response = await fetch(
         `https://breezer-electronics-3.onrender.com/api/admin/blog/posts/${editingPost.id}`,
         {
@@ -477,14 +524,50 @@ const fetchPosts = async () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image_url">Image URL</Label>
-                <Input
-                  id="image_url"
-                  name="image_url"
-                  value={formData.image_url}
-                  onChange={handleInputChange}
-                  placeholder="https://example.com/image.jpg"
-                />
+                <Label htmlFor="image">Featured Image</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="image_url"
+                    name="image_url"
+                    value={formData.image_url}
+                    onChange={handleInputChange}
+                    placeholder="Image URL or upload a file"
+                    className="flex-1"
+                  />
+                  <div className="relative">
+                    <Input
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="whitespace-nowrap"
+                      disabled={uploadingImage}
+                    >
+                      {uploadingImage ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <>
+                          <Upload className="h-4 w-4 mr-2" />
+                          Choose File
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+                {formData.image_url && (
+                  <div className="mt-2">
+                    <img 
+                      src={formData.image_url} 
+                      alt="Preview" 
+                      className="h-40 object-cover rounded-md border"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center space-x-2">
@@ -510,7 +593,7 @@ const fetchPosts = async () => {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" disabled={isSubmitting || uploadingImage}>
                   {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                   {editingPost ? 'Update Post' : 'Create Post'}
                 </Button>

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ShoppingCart, User } from "lucide-react"; 
-import { Button } from "@/components/ui/button";
 import { useCart } from "../../contexts/CartContext"; 
 import { useAuth } from "../../contexts/AuthContext"; 
 
@@ -18,25 +17,49 @@ export const Navbar = () => {
     { name: "Portfolio", href: "/portfolio" },
     { name: "Contact", href: "/contact" },
     { name: "Blog", href: "/blog" },
-    //  { name: "BlogAdmin", href: "/blogadmin" },
-
   ];
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path: string) => location.pathname === path;
 
+  // 👉 Check if we’re on admin pages
+const isAdminRoute = 
+  location.pathname.startsWith("/blogadmin") || 
+  location.pathname.startsWith("/admin");
+
+  if (isAdminRoute) {
+    // 🟢 Minimal navbar for admin (logo only)
+    return (
+      <nav className="bg-white shadow-lg sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16 items-center">
+            <Link to="/" className="flex items-center space-x-2">
+              <img 
+                src="/logo.png" 
+                alt="Breezer Electric Logo" 
+                className="h-14 w-14 rounded-full object-cover mb-1 mt-2 bg-gray-900" 
+              />
+              <span className="text-xs font-bold text-primary">
+                Breezer Electric & Automations
+              </span>
+            </Link>
+          </div>
+        </div>
+      </nav>
+    );
+  }
+
+  // 🟢 Full navbar for public site
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              {/* Adjusted size of the logo image */}
               <img 
                 src="/logo.png" 
                 alt="Breezer Electric Logo" 
                 className="h-14 w-14 rounded-full object-cover mb-1 mt-2 bg-gray-900" 
               />
-              {/* Removed redundant text as the logo image contains the full name */}
               <span className="text-xs font-bold text-primary">
                 Breezer Electric & Automations 
               </span>
@@ -59,7 +82,7 @@ export const Navbar = () => {
               </Link>
             ))}
 
-            {/* Cart Icon (Desktop) - Now links to /cart */}
+            {/* Cart Icon (Desktop) */}
             <Link to="/cart" className="relative p-2 rounded-full hover:bg-gray-100 transition-colors">
               <ShoppingCart className="h-6 w-6 text-gray-700" />
               {cartItemCount > 0 && (
@@ -67,19 +90,16 @@ export const Navbar = () => {
                   {cartItemCount}
                 </span>
               )}
-              <span className="sr-only">Shopping Cart</span>
             </Link>
 
             {/* Profile Icon (Desktop) */}
             <Link to={isAuthenticated ? "/account" : "/login"} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
               <User className="h-6 w-6 text-gray-700" />
-              <span className="sr-only">Profile</span>
             </Link>
           </div>
 
-          {/* Mobile menu button & Icons */}
+          {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-2">
-            {/* Cart Icon (Mobile) - Now links to /cart */}
             <Link to="/cart" className="relative p-2 rounded-full hover:bg-gray-100 transition-colors">
               <ShoppingCart className="h-6 w-6 text-gray-700" />
               {cartItemCount > 0 && (
@@ -87,13 +107,10 @@ export const Navbar = () => {
                   {cartItemCount}
                 </span>
               )}
-              <span className="sr-only">Shopping Cart</span>
             </Link>
 
-            {/* Profile Icon (Mobile) */}
             <Link to={isAuthenticated ? "/account" : "/login"} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
               <User className="h-6 w-6 text-gray-700" />
-              <span className="sr-only">Profile</span>
             </Link>
 
             <button
