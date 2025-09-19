@@ -23,6 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Expiry time in ms → 5 hours
 const TOKEN_EXPIRY_MS = 5 * 60 * 60 * 1000; 
+const ADMIN_TOKEN_EXPIRY_MS = 12 * 60 * 60 * 1000;
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -56,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Function to handle user login
   const login = (userData: User, authToken: string) => {
-    const expiryTime = Date.now() + TOKEN_EXPIRY_MS;
+    const expiryTime = Date.now() + (userData.isAdmin ? ADMIN_TOKEN_EXPIRY_MS : TOKEN_EXPIRY_MS);
 
     setUser(userData);
     setIsAuthenticated(true);
@@ -68,14 +69,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Function to handle user logout
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    setToken(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('tokenExpiry');
-  };
+  // Function to handle user logout
+const logout = () => {
+  const wasAdmin = user?.isAdmin; // store before clearing
+
+  setUser(null);
+  setIsAuthenticated(false);
+  setToken(null);
+
+  localStorage.removeItem('user');
+  localStorage.removeItem('token');
+  localStorage.removeItem('tokenExpiry');
+
+  if (wasAdmin) {
+    window.location.href = "/admin-login";
+  } else {
+    window.location.href = "/login";
+  }
+};
+
 
   const contextValue = {
     user,
