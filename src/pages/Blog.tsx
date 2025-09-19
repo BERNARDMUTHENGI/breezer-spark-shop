@@ -70,7 +70,7 @@ const Blog = () => {
       {/* Hero Section */}
       <section 
         className="text-primary-foreground py-20 bg-cover bg-center" 
-        style={{ backgroundImage: `url('/contact.png')` }}
+        style={{ backgroundImage: `url('/blog.png')` }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-8 fade-in-up">
@@ -168,7 +168,8 @@ const Blog = () => {
                             </div>
                             <div className="flex items-center">
                               <Calendar className="h-4 w-4 mr-1" />
-                              <span>{new Date(post.date).toLocaleDateString()}</span>
+                          <span>{new Date(post.published_at).toLocaleDateString()}</span>
+
                             </div>
                           </div>
                           <div className="flex items-center">
@@ -210,7 +211,7 @@ const Blog = () => {
               {/* About Card */}
               <Card className="card-professional">
                 <CardHeader>
-                  <CardTitle className="text-xl text-primary">About Our Blog</CardTitle>
+                  <CardTitle className="text-xl text-primary">Why our Blogs?</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4">
@@ -268,7 +269,8 @@ const Blog = () => {
                             {post.title}
                           </Link>
                           <p className="text-sm text-muted-foreground mt-1">
-                            {new Date(post.date).toLocaleDateString()}
+                     <span>{new Date(post.published_at).toLocaleDateString()}</span>
+
                           </p>
                         </li>
                       ))}
@@ -277,29 +279,7 @@ const Blog = () => {
                 </Card>
               )}
 
-              {/* Newsletter Signup */}
-              <Card className="card-professional">
-                <CardHeader>
-                  <CardTitle className="text-xl text-primary">Stay Updated</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Subscribe to our newsletter for the latest electrical tips and industry insights.
-                  </p>
-                  <form className="space-y-4">
-                    <div>
-                      <Label htmlFor="email" className="sr-only">Email Address</Label>
-                      <Input 
-                        id="email" 
-                        type="email" 
-                        placeholder="Your email address" 
-                        required 
-                      />
-                    </div>
-                    <Button type="submit" className="w-full">Subscribe</Button>
-                  </form>
-                </CardContent>
-              </Card>
+              
             </div>
           </div>
         </div>
