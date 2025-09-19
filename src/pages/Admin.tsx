@@ -450,51 +450,46 @@ const handleEditProduct = async (e: React.FormEvent) => {
   e.preventDefault();
   if (!currentProduct) return;
 
-  const formData = new FormData(e.target as HTMLFormElement);
+  const form = e.currentTarget as HTMLFormElement;
+  const formData = new FormData(form);
 
-  // Append new images from file input
-  const imageFiles = (formData.getAll("images") as File[]).filter(f => f instanceof File);
-  imageFiles.forEach(file => formData.append("images", file));
-
-  // Include existing images as JSON string
-  const existingImages = (currentProduct.images || []).map(img => img.imageUrl);
-  formData.append("existingImages", JSON.stringify(existingImages));
+  // Append existing images from hidden field
+  const existingImagesStr = formData.get("extraImages") as string;
+  if (existingImagesStr) {
+    const existingImages = existingImagesStr.split(",");
+    existingImages.forEach(img => formData.append("images", img));
+  }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/admin/products/${currentProduct.id}`, {
+    const res = await fetch(`${API_BASE_URL}/admin/products/${currentProduct.id}`, {
       method: "PUT",
-      // DO NOT set Content-Type; browser sets multipart/form-data automatically
-      body: formData,
+      body: formData, // multipart/form-data
     });
 
-    if (!response.ok) {
-      // Attempt to parse JSON error if backend sent JSON
-      let errorMessage = "Failed to update product";
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorMessage;
-      } catch {}
-      throw new Error(errorMessage);
-    }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Update failed");
 
-    const result = await response.json();
     toast({
       title: "Product Updated",
-      description: result.message || "Product updated successfully",
+      description: data.message || "Product updated successfully",
     });
 
     setIsEditingProduct(false);
     setCurrentProduct(null);
-    fetchProducts();
-  } catch (error: any) {
-    console.error("Error updating product:", error);
+
+    // Update products in state immediately
+    setProducts(prev => prev.map(p => p.id === data.id ? data : p));
+
+  } catch (err: any) {
+    console.error("Error updating product:", err);
     toast({
       title: "Error",
-      description: `Failed to update product: ${error.message}`,
+      description: `Failed to update product: ${err.message}`,
       variant: "destructive",
     });
   }
 };
+
 
 
 
@@ -1674,61 +1669,29 @@ const handleDeleteOrder = async (id: number) => {
   </div>
 )}
 
-{/* Edit Product Modal */}
+{/* --- Edit Product Modal --- */}
 {isEditingProduct && currentProduct && (
   <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
     <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl mx-auto my-auto">
       <h3 className="text-2xl font-bold text-primary mb-6">Edit Product</h3>
 
       <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          try {
-            const form = e.currentTarget as HTMLFormElement;
-
-            const name = (form.elements.namedItem("name") as HTMLInputElement).value;
-            const description = (form.elements.namedItem("description") as HTMLTextAreaElement).value;
-            const price = Number((form.elements.namedItem("price") as HTMLInputElement).value);
-            const sku = (form.elements.namedItem("sku") as HTMLInputElement).value;
-            const categoryId = (form.elements.namedItem("categoryId") as HTMLSelectElement).value || null;
-            const thumbnailUrl = (form.elements.namedItem("thumbnailUrl") as HTMLInputElement).value;
-            const isActive = (form.elements.namedItem("isActive") as HTMLInputElement).checked;
-            const stock = Number((form.elements.namedItem("stock") as HTMLInputElement).value);
-
-            const extraImagesStr = (form.elements.namedItem("extraImages") as HTMLInputElement).value;
-            const bodyImages = extraImagesStr ? extraImagesStr.split(",") : [];
-
-            const payload = {
-              name, description, price, sku, categoryId,
-              thumbnailUrl, bodyImages, stock, isActive
-            };
-
-            const res = await fetch(`${API_BASE_URL}/admin/products/${currentProduct.id}`, {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload)
-            });
-
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Update failed");
-
-            console.log("Product updated:", data);
-            setIsEditingProduct(false);
-            setCurrentProduct(null);
-            // Optionally refresh your product list here
-          } catch (err) {
-            console.error("Error updating product:", err);
-            alert(err.message || "Update failed, check console.");
-          }
-        }}
+        onSubmit={handleEditProduct}
         className="space-y-5"
+        encType="multipart/form-data"
       >
         {/* Name */}
         <div>
           <Label htmlFor="edit-name" className="text-sm font-medium text-gray-700 flex items-center">
             <Package className="h-4 w-4 mr-2" />Product Name *
           </Label>
-          <Input id="edit-name" name="name" required defaultValue={currentProduct.name} className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"/>
+          <Input
+            id="edit-name"
+            name="name"
+            required
+            defaultValue={currentProduct.name}
+            className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
+          />
         </div>
 
         {/* Description */}
@@ -1736,7 +1699,12 @@ const handleDeleteOrder = async (id: number) => {
           <Label htmlFor="edit-description" className="text-sm font-medium text-gray-700 flex items-center">
             <Info className="h-4 w-4 mr-2" />Description
           </Label>
-          <Textarea id="edit-description" name="description" defaultValue={currentProduct.description || ''} className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"/>
+          <Textarea
+            id="edit-description"
+            name="description"
+            defaultValue={currentProduct.description || ''}
+            className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
+          />
         </div>
 
         {/* Category */}
@@ -1744,7 +1712,13 @@ const handleDeleteOrder = async (id: number) => {
           <Label htmlFor="edit-categoryId" className="text-sm font-medium text-gray-700 flex items-center">
             <Package className="h-4 w-4 mr-2" />Category *
           </Label>
-          <select id="edit-categoryId" name="categoryId" required defaultValue={currentProduct.category?.id || ''} className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+          <select
+            id="edit-categoryId"
+            name="categoryId"
+            required
+            defaultValue={currentProduct.category?.id || ''}
+            className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
             <option value="">Select category</option>
             {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
           </select>
@@ -1755,7 +1729,16 @@ const handleDeleteOrder = async (id: number) => {
           <Label htmlFor="edit-price" className="text-sm font-medium text-gray-700 flex items-center">
             <DollarSign className="h-4 w-4 mr-2" />Price *
           </Label>
-          <Input id="edit-price" name="price" type="number" step="0.01" min="0" placeholder="0.00" required defaultValue={currentProduct.price} className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"/>
+          <Input
+            id="edit-price"
+            name="price"
+            type="number"
+            step="0.01"
+            min="0"
+            required
+            defaultValue={currentProduct.price}
+            className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
+          />
         </div>
 
         {/* SKU */}
@@ -1763,7 +1746,12 @@ const handleDeleteOrder = async (id: number) => {
           <Label htmlFor="edit-sku" className="text-sm font-medium text-gray-700 flex items-center">
             <Hash className="h-4 w-4 mr-2" />SKU
           </Label>
-          <Input id="edit-sku" name="sku" defaultValue={currentProduct.sku || ''} className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"/>
+          <Input
+            id="edit-sku"
+            name="sku"
+            defaultValue={currentProduct.sku || ''}
+            className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
+          />
         </div>
 
         {/* Thumbnail Upload */}
@@ -1772,11 +1760,17 @@ const handleDeleteOrder = async (id: number) => {
             <ImageIcon className="h-4 w-4 mr-2" />Thumbnail
           </Label>
           <div className="flex gap-2 items-center mt-1">
-            <input id="thumbnailUpload" type="file" accept="image/*" className="hidden"
+            <input
+              id="thumbnailUpload"
+              type="file"
+              accept="image/*"
+              className="hidden"
               onChange={async (e) => {
-                const file = e.target.files?.[0]; if(!file) return;
+                const file = e.target.files?.[0]; 
+                if(!file) return;
                 try {
-                  const formData = new FormData(); formData.append("images", file);
+                  const formData = new FormData(); 
+                  formData.append("thumbnail", file);
                   const res = await fetch(`${API_BASE_URL}/upload-multiple`, { method:"POST", body:formData });
                   const data = await res.json();
                   if(res.ok && data.images?.length > 0) {
@@ -1787,7 +1781,14 @@ const handleDeleteOrder = async (id: number) => {
               }}
             />
             <Button type="button" variant="outline" onClick={() => document.getElementById("thumbnailUpload")?.click()}>Choose File</Button>
-            <Input id="thumbnailUrl" name="thumbnailUrl" type="url" placeholder="https://example.com/image.jpg" className="flex-1 focus:border-blue-500 focus:ring-blue-500 rounded-md" defaultValue={currentProduct.thumbnailUrl || ''}/>
+            <Input
+              id="thumbnailUrl"
+              name="thumbnailUrl"
+              type="url"
+              placeholder="https://example.com/image.jpg"
+              className="flex-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
+              defaultValue={currentProduct.thumbnailUrl || ''}
+            />
           </div>
         </div>
 
@@ -1796,9 +1797,16 @@ const handleDeleteOrder = async (id: number) => {
           <Label htmlFor="edit-imagesUpload" className="text-sm font-medium text-gray-700 flex items-center">
             <ImageIcon className="h-4 w-4 mr-2" />Additional Images
           </Label>
-          <input id="edit-imagesUpload" type="file" name="images" accept="image/*" multiple className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer"
+          <input
+            id="edit-imagesUpload"
+            type="file"
+            name="images"
+            accept="image/*"
+            multiple
+            className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer"
             onChange={async (e) => {
-              const files = e.target.files; if(!files?.length) return;
+              const files = e.target.files; 
+              if(!files?.length) return;
               try {
                 const formData = new FormData();
                 Array.from(files).forEach(file => formData.append("images", file));
@@ -1811,7 +1819,12 @@ const handleDeleteOrder = async (id: number) => {
               } catch(err){ console.error(err); alert("Upload failed"); }
             }}
           />
-          <input type="hidden" id="extraImages" name="extraImages" defaultValue={currentProduct.images?.map(img => img.imageUrl).join(",") || ""}/>
+          <input
+            type="hidden"
+            id="extraImages"
+            name="extraImages"
+            defaultValue={currentProduct.images?.map(img => img.imageUrl).join(",") || ""}
+          />
         </div>
 
         {/* Stock */}
@@ -1819,7 +1832,15 @@ const handleDeleteOrder = async (id: number) => {
           <Label htmlFor="edit-stock" className="text-sm font-medium text-gray-700 flex items-center">
             <Package className="h-4 w-4 mr-2" />Stock Quantity *
           </Label>
-          <Input id="edit-stock" name="stock" type="number" min="0" required defaultValue={currentProduct.stock} className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"/>
+          <Input
+            id="edit-stock"
+            name="stock"
+            type="number"
+            min="0"
+            required
+            defaultValue={currentProduct.stock}
+            className="mt-1 focus:border-blue-500 focus:ring-blue-500 rounded-md"
+          />
         </div>
 
         {/* Active toggle */}
@@ -1833,9 +1854,14 @@ const handleDeleteOrder = async (id: number) => {
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 pt-4">
           <Button type="submit" className="flex-1 py-2.5 rounded-lg text-lg font-semibold bg-blue-600 hover:bg-blue-700 transition-colors">Save Changes</Button>
-          <Button type="button" variant="outline" className="flex-1 py-2.5 rounded-lg text-lg font-semibold border-gray-300 hover:bg-gray-100"
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1 py-2.5 rounded-lg text-lg font-semibold border-gray-300 hover:bg-gray-100"
             onClick={() => { setIsEditingProduct(false); setCurrentProduct(null); }}
-          >Cancel</Button>
+          >
+            Cancel
+          </Button>
         </div>
       </form>
     </div>
