@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState,lazy,Suspense ,useEffect } from "react";
+
+import "react-quill/dist/quill.snow.css"; // ✅ added
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,6 +28,8 @@ import {
   Loader2,
   Upload
 } from "lucide-react";
+
+const ReactQuill = lazy(() => import("react-quill"));
 
 const BlogAdminDashboard = () => {
   const [posts, setPosts] = useState([]);
@@ -289,6 +293,11 @@ const BlogAdminDashboard = () => {
     setIsDeleteDialogOpen(true);
   };
 
+   // ✅ NEW handler for ReactQuill editor changes
+  const handleContentChange = (value: string) => {
+    setFormData(prev => ({ ...prev, content: value }));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -487,17 +496,20 @@ const BlogAdminDashboard = () => {
                 />
               </div>
 
+                            {/* ✅ UPDATED: Content now uses ReactQuill */}
               <div className="space-y-2">
-                <Label htmlFor="content">Content *</Label>
-                <Textarea
-                  id="content"
-                  name="content"
-                  value={formData.content}
-                  onChange={handleInputChange}
-                  rows={6}
-                  required
-                />
-              </div>
+  <Label htmlFor="content">Content *</Label>
+  <Suspense fallback={<div>Loading editor...</div>}>
+    <ReactQuill
+      value={formData.content}
+      onChange={handleContentChange}
+      theme="snow"
+      className="bg-white"
+    />
+  </Suspense>
+</div>
+
+
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
