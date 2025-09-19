@@ -1052,7 +1052,7 @@ const handleDeleteOrder = async (id: number) => {
               <Button
                 variant="ghost"
                 className="w-full flex items-center space-x-3 px-5 py-3 rounded-xl text-primary-foreground/80 hover:bg-primary-hover hover:text-primary-foreground justify-start"
-                onClick={() => window.open("https://breezerelectric.com.com", "_blank")}
+                onClick={() => window.open("https://breezerelectrical.com", "_blank")}
               >
                 <Link className="h-5 w-5" />
                 <span className="font-medium">Visit Website</span>
