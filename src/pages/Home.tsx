@@ -175,7 +175,7 @@ const Home = () => {
                 <h3 className="text-2xl font-semibold text-primary mb-4">Our Generator Services Include:</h3>
                 <ul className="list-disc pl-6 text-muted-foreground space-y-2">
                   <li>Residential generator installation and automations</li>
-                  <li>Commercial generator solutions</li>
+                  <li>Commercial generator automations & solutions</li>
                   <li>Automatic transfer switch installation</li>
                   <li>Generator maintenance and servicing</li>
                   <li>Emergency generator repair services</li>
