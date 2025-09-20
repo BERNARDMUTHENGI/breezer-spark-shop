@@ -69,7 +69,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-8 fade-in-up">
             <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-             Professional Electrical Contractors & Automation Experts in Kenya
+             Professional Electrical  Automation Experts in Kenya
             </h1>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild className="btn-hero">
@@ -117,7 +117,7 @@ const Home = () => {
               Our Expert Services
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Breezer Electric Kenya offers comprehensive electrical solutions backed by certifications and years of experience across Kenya. Our expert services cover a wide range of electrical and automation needs, ensuring top-notch quality and reliability.
+              Breezer Electric Kenya offers comprehensive electrical and automations solutions backed by certifications and years of experience across Kenya. Our expert services cover a wide range of electrical and automation needs, ensuring top-notch quality and reliability.
             </p>
           </div>
 
@@ -144,18 +144,18 @@ const Home = () => {
                 aria-label="Electrical Contracting"
               ></div>
               <CardContent className="p-8">
-                <h2 className="text-3xl font-bold text-primary mb-6">Electrical Contractors Kenya - EPRA Certified Electricians</h2>
+                <h2 className="text-3xl font-bold text-primary mb-6">Electrical $ Automation Contractors Kenya - EPRA Certified Electricians</h2>
                 <p className="text-lg text-muted-foreground mb-8">
-                  Looking for reliable electrical contractors in Kenya? Breezer Electric's EPRA certified electricians provide professional electrical installation, maintenance, and repair services across Nairobi, Mombasa, Kisumu, and all major Kenyan cities. Our licensed electrical contractors specialize in residential and commercial electrical work with full compliance to Kenya's electrical safety standards.
+                  Looking for reliable electrical and automations contractors in Kenya? Breezer Electric's EPRA certified electricians provide professional electrical automations, installation, maintenance, and repair services across Nairobi, Mombasa, Kisumu, and all major Kenyan cities. Our licensed electrical contractors specialize in residential and commercial electrical work and automations with full compliance to Kenya's electrical safety standards.
                 </p>
                 
                 <h3 className="text-2xl font-semibold text-primary mb-4">Our Electrical Contracting Services Include:</h3>
                 <ul className="list-disc pl-6 text-muted-foreground mb-8 space-y-2">
-                  <li>Electrical installation for new homes and commercial buildings</li>
+                  <li>Electrical installation $ automation for new homes and commercial buildings</li>
                   <li>Electrical panel upgrades and circuit breaker installation</li>
-                  <li>House rewiring and electrical system modernization</li>
+                  <li>House rewiring and electrical system modernization and automation</li>
                   <li>Emergency electrical repairs - 24/7 service available</li>
-                  <li>Electrical safety inspections and EPRA compliance certification</li>
+                  <li>Electrical safety automations and inspections and EPRA compliance certification</li>
                 </ul>
               </CardContent>
             </Card>
@@ -167,14 +167,14 @@ const Home = () => {
                 aria-label="Generator Installation"
               ></div>
               <CardContent className="p-8">
-                <h2 className="text-3xl font-bold text-primary mb-6">Generator Installation Kenya - Backup Power Solutions</h2>
+                <h2 className="text-3xl font-bold text-primary mb-6">Generator Installation and automation Kenya - Backup Power Solutions</h2>
                 <p className="text-lg text-muted-foreground mb-8">
-                  Professional generator installation services across Kenya by certified electrical contractors. Breezer Electric installs residential and commercial generators with automatic transfer switches, ensuring uninterrupted power supply during outages. Our generator installation services include sizing, installation, and maintenance programs.
+                  Professional generator installation services across Kenya by certified electrical contractors. Breezer Electric installs residential and commercial generators with automatomation transfer switches, ensuring uninterrupted power supply during outages. Our generator installation services include sizing, installation, and maintenance programs.
                 </p>
                 
                 <h3 className="text-2xl font-semibold text-primary mb-4">Our Generator Services Include:</h3>
                 <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-                  <li>Residential generator installation</li>
+                  <li>Residential generator installation and automations</li>
                   <li>Commercial generator solutions</li>
                   <li>Automatic transfer switch installation</li>
                   <li>Generator maintenance and servicing</li>
